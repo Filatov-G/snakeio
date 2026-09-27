@@ -5,6 +5,7 @@ const MAX_PLAYERS = 20;
 const TICK_RATE = 30;
 const BROADCAST_RATE = 15;
 const STEP = 1000 / TICK_RATE;
+const RESET_INTERVAL_MS = 30 * 60 * 1000;
 
 const WORLD_W = 3500;
 const WORLD_H = 2500;
@@ -72,9 +73,13 @@ function computeSegments(s) {
 function dieSnake(world, snake, killer) {
   if (!snake.alive) return;
   snake.alive = false;
-  for (const p of snake.segments) {
+
+  // Еда падает в 2 раза реже — каждый второй сегмент
+  for (let i = 0; i < snake.segments.length; i += 2) {
+    const p = snake.segments[i];
     world.foods.push({ x: p.x, y: p.y, r: FOOD_RADIUS, type: 'common', xp: 10, lengthGain: 1 });
   }
+
   if (killer && killer.isPlayer && !snake.isPlayer) {
     killer.kills++;
     killer.coins++;
@@ -227,8 +232,34 @@ function stepWorld(world, dt) {
   }
 }
 
+// ============ АВТОСБРОС КАЖДЫЕ 30 МИНУТ ============
 const world = createWorld();
 const players = new Map();
+
+function resetWorld(reason) {
+  console.log(`🔄 СБРОС СЕРВЕРА: ${reason}`);
+  for (const ws of players.keys()) {
+    try {
+      ws.send(JSON.stringify({ type: 'error', message: 'Сервер перезагружается, обновите страницу' }));
+      ws.close();
+    } catch (e) {}
+  }
+  players.clear();
+
+  const newWorld = createWorld();
+  world.snakes = newWorld.snakes;
+  world.foods = newWorld.foods;
+  world.events = newWorld.events;
+  world.tick = 0;
+
+  console.log(`✅ Мир пересоздан. Ботов: ${world.snakes.length}, еды: ${world.foods.length}`);
+}
+
+setInterval(() => {
+  resetWorld('прошло 30 минут');
+}, RESET_INTERVAL_MS);
+
+// ============ СЕРВЕР ============
 const wss = new WebSocketServer({ port: PORT });
 
 console.log(`🐍 Сервер запущен на порту ${PORT}`);
