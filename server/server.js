@@ -22,7 +22,7 @@ const BOOST_REGEN = 0.35;
 const BOOST_MAX = 100;
 const BOOST_MIN_TO_START = 15;
 const FOOD_COUNT = 90;
-const BOT_COUNT = 15;
+const BOT_COUNT = 3;
 
 const rand = (min, max) => min + Math.random() * (max - min);
 const dist2 = (ax, ay, bx, by) => { const dx = ax - bx, dy = ay - by; return dx * dx + dy * dy; };
@@ -74,7 +74,6 @@ function dieSnake(world, snake, killer) {
   if (!snake.alive) return;
   snake.alive = false;
 
-  // Еда падает в 2 раза реже — каждый второй сегмент
   for (let i = 0; i < snake.segments.length; i += 2) {
     const p = snake.segments[i];
     world.foods.push({ x: p.x, y: p.y, r: FOOD_RADIUS, type: 'common', xp: 10, lengthGain: 1 });
@@ -232,7 +231,6 @@ function stepWorld(world, dt) {
   }
 }
 
-// ============ АВТОСБРОС КАЖДЫЕ 30 МИНУТ ============
 const world = createWorld();
 const players = new Map();
 
@@ -259,7 +257,6 @@ setInterval(() => {
   resetWorld('прошло 30 минут');
 }, RESET_INTERVAL_MS);
 
-// ============ СЕРВЕР ============
 const wss = new WebSocketServer({ port: PORT });
 
 console.log(`🐍 Сервер запущен на порту ${PORT}`);
