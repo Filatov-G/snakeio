@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Змейка.io — Онлайн</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    overflow: hidden; background: #0d1117; color: #fff;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    user-select: none; -webkit-user-select: none;
+    touch-action: none;
+  }
+  #game { display: block; width: 100vw; height: 100vh; }
+
+  #hud {
+    position: absolute; top: 16px; left: 16px;
+    display: flex; gap: 8px; flex-wrap: wrap;
+    pointer-events: none;
+  }
+  .stat {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(0,255,120,0.25);
+    border-radius: 24px;
+    padding: 6px 14px;
+    font-size: 14px; font-weight: 700;
+  }
+  .stat .label { color: #888; font-size: 11px; text-transform: uppercase; margin-right: 6px; }
+  .stat .value { color: #0f0; }
+
+  #leaderboard {
+    position: absolute; top: 16px; right: 16px;
+    background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(255,215,0,0.25);
+    border-radius: 12px;
+    padding: 10px 14px;
+    min-width: 170px;
+    font-size: 13px;
+    pointer-events: none;
+  }
+  #leaderboard .lb-title {
+    color: #ffd700; font-size: 11px; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    margin-bottom: 6px; text-align: center;
+  }
+  #leaderboard .lb-row {
+    display: flex; gap: 6px; padding: 2px 4px;
+    border-radius: 4px;
+  }
+  #leaderboard .lb-row.you { background: rgba(0,255,120,0.15); color: #0f0; }
+  #leaderboard .lb-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #leaderboard .lb-len { color: #ffaa44; font-weight: 800; }
+  #leaderboard .lb-row.you .lb-len { color: #0f0; }
+
+  #status {
+    position: absolute; bottom: 16px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-size: 13px; font-weight: 700;
+    pointer-events: none;
+  }
+  #status.connected { color: #0f0; border-color: rgba(0,255,120,0.4); }
+  #status.error { color: #ff5577; border-color: rgba(255,80,120,0.4); }
+
+  #hint {
+    position: absolute; bottom: 60px; left: 50%;
+    transform: translateX(-50%);
+    color: #667788; font-size: 12px;
+    text-align: center; pointer-events: none;
+  }
+
+  #deathScreen {
+    position: absolute; inset: 0;
+    background: rgba(5,8,15,0.85);
+    backdrop-filter: blur(20px);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    z-index: 20;
+  }
+  #deathScreen.show { display: flex; }
+  #deathScreen .title {
+    font-size: 42px; font-weight: 900;
+    background: linear-gradient(90deg, #ff4455, #ff0088);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  #deathScreen .sub { color: #8899aa; font-size: 16px; }
+  #deathScreen .sub b { color: #0f0; }
+  #deathScreen button {
+    background: linear-gradient(135deg, #00ff66, #00aa44);
+    color: #000; border: none;
+    padding: 16px 40px; border-radius: 14px;
+    font-size: 18px; font-weight: 800;
+    cursor: pointer; font-family: inherit;
+    box-shadow: 0 8px 32px rgba(0,255,100,0.5);
+  }
+
+  #backBtn {
+    position: absolute; top: 16px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff;
+    padding: 8px 20px; border-radius: 20px;
+    font-size: 13px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+    text-decoration: none;
+    z-index: 30;
+  }
+  #backBtn:hover { background: rgba(255,255,255,0.15); }
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<a id="backBtn" href="../index.html">← В меню</a>
+
+<div id="hud">
+  <div class="stat"><span class="label">Длина</span><span class="value" id="length">0</span></div>
+  <div class="stat"><span class="label">Убийств</span><span class="value" id="kills">0</span></div>
+  <div class="stat"><span class="label">Монет</span><span class="value" id="coins">0</span></div>
+  <div class="stat"><span class="label">Буст</span><span class="value" id="boost">100</span></div>
+</div>
+
+<div id="leaderboard">
+  <div class="lb-title">🏆 Лидерборд</div>
+  <div id="lb-list"></div>
+</div>
+
+<div id="status">Подключение...</div>
+<div id="hint">Мышь / WASD / стрелки — движение · Пробел — буст</div>
+
+<div id="deathScreen">
+  <div class="title">Ты погиб!</div>
+  <div class="sub">Длина: <b id="finalLength">0</b> · Убийств: <b id="finalKills">0</b></div>
+  <button id="respawnBtn">Возродиться</button>
+</div>
+
+<script type="module" src="./client.js"></script>
+</body>
+</html>
