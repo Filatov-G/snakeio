@@ -318,7 +318,16 @@
     border: 1px solid rgba(120, 180, 255, 0.3);
   }
   .btn-tutorial:hover { background: rgba(120, 180, 255, 0.25); }
-
+ .btn-online {
+   background: linear-gradient(135deg, rgba(0, 200, 255, 0.2), rgba(100, 100, 255, 0.2));
+   color: #7fddff;
+   border: 1px solid rgba(0, 200, 255, 0.5);
+   box-shadow: 0 0 20px rgba(0, 200, 255, 0.2);
+ }
+ .btn-online:hover {
+   background: linear-gradient(135deg, rgba(0, 200, 255, 0.35), rgba(100, 100, 255, 0.35));
+   box-shadow: 0 8px 32px rgba(0, 200, 255, 0.4);
+ }
   #customScreen { z-index: 25; }
 
   #customPanel {
@@ -1747,6 +1756,7 @@
 
     <div class="menu-buttons">
       <button id="playBtn" class="btn-big btn-primary">▶ Играть</button>
+      <button id="onlineBtn" class="btn-big btn-online">🌐 Играть онлайн</button>
       <button id="customizeBtn" class="btn-big">🎨 Кастомизация</button>
       <button id="shopBtn" class="btn-big btn-shop">🛒 Магазин</button>
       <button id="tutorialBtn" class="btn-big btn-tutorial">🎓 Обучение</button>
@@ -5446,6 +5456,12 @@ canvas.addEventListener('mousemove', e => {
 respawnBtn.addEventListener('click', respawnPlayer);
 toMenuBtn.addEventListener('click', goToMainMenu);
 playBtn.addEventListener('click', startGame);
+const onlineBtn = document.getElementById('onlineBtn');
+if (onlineBtn) {
+  onlineBtn.addEventListener('click', () => {
+    window.location.href = './online/index.html';
+  });
+}
 playFromCustomBtn.addEventListener('click', startGame);
 
 
