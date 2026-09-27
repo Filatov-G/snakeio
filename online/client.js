@@ -53,7 +53,15 @@ function connect() {
   try { ws = new WebSocket(SERVER_URL); }
   catch { setStatus('Не удалось подключиться', 'error'); return; }
 
-  ws.onopen = () => setStatus('Подключено', 'connected');
+  ws.onopen = () => {
+    setStatus('Подключено', 'connected');
+
+    // Отправляем имя из localStorage (то, что ввёл в оффлайн-игре)
+    const savedName = localStorage.getItem('snakeio_playerName');
+    if (savedName && savedName.trim()) {
+      ws.send(JSON.stringify({ type: 'setName', name: savedName.trim().slice(0, 14) }));
+    }
+  };
 
   ws.onmessage = (event) => {
     let msg;
