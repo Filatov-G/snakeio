@@ -285,23 +285,29 @@ wss.on('connection', (ws) => {
   ws.on('message', (data) => {
     try {
       const msg = JSON.parse(data);
+      const rec = players.get(ws);
+      if (!rec) return;
+      const current = rec.snake;
+
       if (msg.type === 'input') {
-        snake.inputAngle = msg.angle;
-        snake.inputBoost = !!msg.boost;
+        if (current && current.alive) {
+          current.inputAngle = msg.angle;
+          current.inputBoost = !!msg.boost;
+        }
       } else if (msg.type === 'setName') {
-        snake.name = String(msg.name || '').slice(0, 14) || 'Игрок';
+        if (current) current.name = String(msg.name || '').slice(0, 14) || 'Игрок';
       } else if (msg.type === 'respawn') {
-        if (!snake.alive) {
+        if (!current || !current.alive) {
           const nx = rand(200, WORLD_W - 200);
           const ny = rand(200, WORLD_H - 200);
-          const ns = makeSnake(nx, ny, rand(0, Math.PI * 2), snake.color, true);
+          const ns = makeSnake(nx, ny, rand(0, Math.PI * 2), current ? current.color : '#00ff66', true);
           ns.id = id;
-          ns.name = snake.name;
-          ns.coins = snake.coins;
-          ns.kills = snake.kills;
+          ns.name = current ? current.name : 'Игрок';
+          ns.coins = current ? current.coins : 0;
+          ns.kills = current ? current.kills : 0;
           computeSegments(ns);
           world.snakes.push(ns);
-          players.get(ws).snake = ns;
+          rec.snake = ns;
         }
       }
     } catch (e) {}
