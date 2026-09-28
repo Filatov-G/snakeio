@@ -1,525 +1,275 @@
-import { SERVER_URL } from './config.js';
-
-const isTouchDevice = (() => {
-  if ('ontouchstart' in window) return true;
-  if (navigator.maxTouchPoints > 0) return true;
-  if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return true;
-  return false;
-})();
-const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent);
-const isMobile = isTouchDevice || isMobileUA;
-
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-
-let W = window.innerWidth, H = window.innerHeight;
-const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-function resize() {
-  W = window.innerWidth; H = window.innerHeight;
-  canvas.width = Math.floor(W * dpr);
-  canvas.height = Math.floor(H * dpr);
-  canvas.style.width = W + 'px';
-  canvas.style.height = H + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  if (isMobile) {
-    updateJoystickRect();
-    checkOrientation();
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Змейка.io — Онлайн</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a12">
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    overflow: hidden; background: #0d1117; color: #fff;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    user-select: none; -webkit-user-select: none;
+    touch-action: none;
   }
-}
-window.addEventListener('resize', resize);
-window.addEventListener('orientationchange', () => {
-  setTimeout(() => {
-    resize();
-    if (isMobile) { updateJoystickRect(); checkOrientation(); }
-  }, 200);
-});
-resize();
+  #game { display: block; width: 100vw; height: 100vh; }
 
-const lengthEl = document.getElementById('length');
-const killsEl = document.getElementById('kills');
-const coinsEl = document.getElementById('coins');
-const boostEl = document.getElementById('boost');
-const statusEl = document.getElementById('status');
-const lbListEl = document.getElementById('lb-list');
-const deathScreen = document.getElementById('deathScreen');
-const finalLengthEl = document.getElementById('finalLength');
-const finalKillsEl = document.getElementById('finalKills');
-const respawnBtn = document.getElementById('respawnBtn');
-const touchControls = document.getElementById('touchControls');
-const joystick = document.getElementById('joystick');
-const joystickKnob = document.getElementById('joystickKnob');
-const boostBtn = document.getElementById('boostBtn');
-const rotateNotice = document.getElementById('rotateNotice');
+  #hud {
+    position: absolute; top: 16px; left: 16px;
+    display: flex; gap: 8px; flex-wrap: wrap;
+    pointer-events: none;
+  }
+  .stat {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(0,255,120,0.25);
+    border-radius: 24px;
+    padding: 6px 14px;
+    font-size: 14px; font-weight: 700;
+  }
+  .stat .label { color: #888; font-size: 11px; text-transform: uppercase; margin-right: 6px; }
+  .stat .value { color: #0f0; }
 
-function setStatus(text, cls = '') {
-  statusEl.textContent = text;
-  statusEl.className = cls;
-}
+  #leaderboard {
+    position: absolute; top: 16px; right: 16px;
+    background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(255,215,0,0.25);
+    border-radius: 12px;
+    padding: 10px 14px;
+    min-width: 170px;
+    font-size: 13px;
+    pointer-events: none;
+  }
+  #leaderboard .lb-title {
+    color: #ffd700; font-size: 11px; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    margin-bottom: 6px; text-align: center;
+  }
+  #leaderboard .lb-row {
+    display: flex; gap: 6px; padding: 2px 4px;
+    border-radius: 4px;
+  }
+  #leaderboard .lb-row.you { background: rgba(0,255,120,0.15); color: #0f0; }
+  #leaderboard .lb-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #leaderboard .lb-len { color: #ffaa44; font-weight: 800; }
+  #leaderboard .lb-row.you .lb-len { color: #0f0; }
 
-let myId = null;
-let worldW = 3500, worldH = 2500;
-let lastState = null, prevState = null;
-let lastStateTime = 0, prevStateTime = 0;
-let camX = 0, camY = 0;
-let inputAngle = 0;
-let inputBoost = false;
-let mouseX = W / 2, mouseY = H / 2;
-let mouseActive = false;
-let wasAlive = true;
-const keys = {};
+  #status {
+    position: absolute; bottom: 16px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-size: 13px; font-weight: 700;
+    pointer-events: none;
+    z-index: 5;
+  }
+  #status.connected { color: #0f0; border-color: rgba(0,255,120,0.4); }
+  #status.error { color: #ff5577; border-color: rgba(255,80,120,0.4); }
 
-let joystickActive = false;
-let joystickTouchId = null;
-let joystickVector = { x: 0, y: 0 };
-let boostTouchId = null;
-const JOYSTICK_MAX_DIST = 55;
-let joystickRect = null;
+  #hint {
+    position: absolute; bottom: 60px; left: 50%;
+    transform: translateX(-50%);
+    color: #667788; font-size: 12px;
+    text-align: center; pointer-events: none;
+  }
 
-let ws = null;
-let reconnectTimer = null;
+  #deathScreen {
+    position: absolute; inset: 0;
+    background: rgba(5,8,15,0.85);
+    backdrop-filter: blur(20px);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    z-index: 20;
+  }
+  #deathScreen.show { display: flex; }
+  #deathScreen .title {
+    font-size: 42px; font-weight: 900;
+    background: linear-gradient(90deg, #ff4455, #ff0088);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  #deathScreen .sub { color: #8899aa; font-size: 16px; }
+  #deathScreen .sub b { color: #0f0; }
+  #deathScreen button {
+    background: linear-gradient(135deg, #00ff66, #00aa44);
+    color: #000; border: none;
+    padding: 16px 40px; border-radius: 14px;
+    font-size: 18px; font-weight: 800;
+    cursor: pointer; font-family: inherit;
+    box-shadow: 0 8px 32px rgba(0,255,100,0.5);
+  }
 
-// ============ МОБИЛЬНОЕ УПРАВЛЕНИЕ ============
-function initTouchControls() {
-  if (!isMobile) return;
-  touchControls.classList.add('visible');
-  checkOrientation();
-  updateJoystickRect();
-}
+  #backBtn {
+    position: absolute; top: 16px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff;
+    padding: 8px 20px; border-radius: 20px;
+    font-size: 13px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+    text-decoration: none;
+    z-index: 30;
+  }
+  #backBtn:hover { background: rgba(255,255,255,0.15); }
 
-function updateJoystickRect() {
-  if (!joystick) return;
-  joystickRect = joystick.getBoundingClientRect();
-}
+  #touchControls {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 12;
+    display: none;
+  }
+  #touchControls.visible { display: block; }
 
-function checkOrientation() {
-  if (!isMobile) return;
-  const isPortrait = window.innerHeight > window.innerWidth;
-  if (isPortrait) rotateNotice.classList.add('show');
-  else rotateNotice.classList.remove('show');
-}
+  #joystick {
+    position: absolute;
+    left: max(24px, env(safe-area-inset-left, 0px));
+    bottom: max(24px, env(safe-area-inset-bottom, 0px));
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 70%, transparent 100%);
+    border: 2px solid rgba(255,255,255,0.15);
+    pointer-events: auto;
+    touch-action: none;
+  }
+  #joystick.active { border-color: rgba(0, 255, 120, 0.5); }
 
-function onJoystickStart(e) {
-  e.preventDefault();
-  if (joystickTouchId !== null) return;
-  const touch = e.changedTouches[0];
-  joystickTouchId = touch.identifier;
-  joystickActive = true;
-  joystick.classList.add('active');
-  updateJoystickRect();
-  updateJoystickFromTouch(touch);
-}
+  #joystickKnob {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 64px; height: 64px;
+    margin-left: -32px;
+    margin-top: -32px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ffffff 0%, #00ff88 40%, #00aa55 100%);
+    box-shadow: 0 0 20px rgba(0, 255, 120, 0.8);
+    pointer-events: none;
+  }
 
-function onJoystickMove(e) {
-  e.preventDefault();
-  if (joystickTouchId === null) return;
-  for (let i = 0; i < e.changedTouches.length; i++) {
-    const touch = e.changedTouches[i];
-    if (touch.identifier === joystickTouchId) {
-      updateJoystickFromTouch(touch);
-      break;
+  #boostBtn {
+    position: absolute;
+    right: max(24px, env(safe-area-inset-right, 0px));
+    bottom: max(30px, env(safe-area-inset-bottom, 0px));
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ffdd55 0%, #ffaa00 50%, #cc7700 100%);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    pointer-events: auto;
+    touch-action: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 44px;
+    font-weight: 900;
+    color: #fff;
+    box-shadow: 0 0 30px rgba(255, 180, 0, 0.6);
+  }
+  #boostBtn .boost-label {
+    position: absolute;
+    bottom: -22px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px; font-weight: 900;
+    color: #ffcc00;
+    white-space: nowrap;
+  }
+  #boostBtn.pressed { transform: scale(0.92); }
+
+  #rotateNotice {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 8, 15, 0.95);
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 30px;
+  }
+  #rotateNotice.show { display: flex; }
+  #rotateNotice .rot-icon { font-size: 80px; margin-bottom: 20px; animation: rotateHint 2s ease-in-out infinite; }
+  @keyframes rotateHint { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(90deg); } }
+  #rotateNotice .rot-title { font-size: 24px; font-weight: 900; margin-bottom: 10px; color: #00ff66; }
+  #rotateNotice .rot-text { font-size: 15px; color: #8899aa; max-width: 320px; }
+  @media (pointer: coarse) and (orientation: portrait) {
+    #rotateNotice.show { display: flex; }
+  }
+
+  @media (pointer: coarse) and (max-width: 900px) {
+    #hud { top: 10px; left: 10px; transform: scale(0.85); transform-origin: top left; }
+    .stat { padding: 6px 12px; margin-right: 6px; margin-bottom: 6px; }
+    .stat .value { font-size: 15px; }
+    .stat .label { font-size: 10px; }
+
+    #leaderboard {
+      top: 10px; right: 10px;
+      padding: 8px 12px; min-width: 130px;
+      transform: scale(0.85); transform-origin: top right;
     }
+    #leaderboard .lb-row { font-size: 11px; }
+
+    #backBtn { top: 10px; padding: 6px 14px; font-size: 12px; }
+
+    #hint { bottom: 180px; font-size: 11px; }
+
+    #deathScreen .title { font-size: 28px; }
+    #deathScreen .sub { font-size: 13px; }
+    #deathScreen button { padding: 12px 28px; font-size: 15px; }
+
+    #status { bottom: 180px; font-size: 11px; padding: 6px 14px; }
   }
-}
+</style>
+</head>
+<body>
 
-function onJoystickEnd(e) {
-  e.preventDefault();
-  if (joystickTouchId === null) return;
-  for (let i = 0; i < e.changedTouches.length; i++) {
-    const touch = e.changedTouches[i];
-    if (touch.identifier === joystickTouchId) {
-      resetJoystick();
-      break;
-    }
-  }
-}
+<div id="rotateNotice">
+  <div class="rot-icon">📱</div>
+  <div class="rot-title">Поверни телефон</div>
+  <div class="rot-text">Для удобной игры держи устройство горизонтально</div>
+</div>
 
-function updateJoystickFromTouch(touch) {
-  if (!joystickRect) updateJoystickRect();
-  if (!joystickRect) return;
-  const cx = joystickRect.left + joystickRect.width / 2;
-  const cy = joystickRect.top + joystickRect.height / 2;
-  let dx = touch.clientX - cx;
-  let dy = touch.clientY - cy;
-  const maxDist = joystickRect.width / 2;
-  let nx = dx / maxDist;
-  let ny = dy / maxDist;
-  const nLen = Math.hypot(nx, ny);
-  if (nLen > 1) { nx /= nLen; ny /= nLen; }
-  const knobX = nx * JOYSTICK_MAX_DIST;
-  const knobY = ny * JOYSTICK_MAX_DIST;
-  joystickKnob.style.transform = `translate(${knobX}px, ${knobY}px)`;
-  if (Math.hypot(nx, ny) < 0.15) {
-    joystickVector.x = 0;
-    joystickVector.y = 0;
-  } else {
-    joystickVector.x = nx;
-    joystickVector.y = ny;
-    mouseActive = false;
-  }
-}
+<canvas id="game"></canvas>
 
-function resetJoystick() {
-  joystickActive = false;
-  joystickTouchId = null;
-  joystick.classList.remove('active');
-  joystickKnob.style.transform = 'translate(0, 0)';
-  joystickVector.x = 0;
-  joystickVector.y = 0;
-}
+<a id="backBtn" href="../index.html">← В меню</a>
 
-function onBoostStart(e) {
-  e.preventDefault();
-  if (boostTouchId !== null) return;
-  const touch = e.changedTouches[0];
-  boostTouchId = touch.identifier;
-  boostBtn.classList.add('pressed');
-  inputBoost = true;
-}
+<div id="hud">
+  <div class="stat"><span class="label">Длина</span><span class="value" id="length">0</span></div>
+  <div class="stat"><span class="label">Убийств</span><span class="value" id="kills">0</span></div>
+  <div class="stat"><span class="label">Монет</span><span class="value" id="coins">0</span></div>
+  <div class="stat"><span class="label">Буст</span><span class="value" id="boost">100</span></div>
+</div>
 
-function onBoostEnd(e) {
-  e.preventDefault();
-  if (boostTouchId === null) return;
-  for (let i = 0; i < e.changedTouches.length; i++) {
-    const touch = e.changedTouches[i];
-    if (touch.identifier === boostTouchId) {
-      boostTouchId = null;
-      boostBtn.classList.remove('pressed');
-      inputBoost = false;
-      break;
-    }
-  }
-}
+<div id="leaderboard">
+  <div class="lb-title">🏆 Лидерборд</div>
+  <div id="lb-list"></div>
+</div>
 
-if (isMobile) {
-  joystick.addEventListener('touchstart', onJoystickStart, { passive: false });
-  joystick.addEventListener('touchmove', onJoystickMove, { passive: false });
-  joystick.addEventListener('touchend', onJoystickEnd, { passive: false });
-  joystick.addEventListener('touchcancel', onJoystickEnd, { passive: false });
+<div id="status">Подключение...</div>
+<div id="hint">Мышь / WASD / стрелки — движение · Пробел — буст</div>
 
-  boostBtn.addEventListener('touchstart', onBoostStart, { passive: false });
-  boostBtn.addEventListener('touchend', onBoostEnd, { passive: false });
-  boostBtn.addEventListener('touchcancel', onBoostEnd, { passive: false });
-}
+<div id="touchControls">
+  <div id="joystick"><div id="joystickKnob"></div></div>
+  <div id="boostBtn">⚡<span class="boost-label">B</span></div>
+</div>
 
-initTouchControls();
+<div id="deathScreen">
+  <div class="title">Ты погиб!</div>
+  <div class="sub">Длина: <b id="finalLength">0</b> · Убийств: <b id="finalKills">0</b></div>
+  <button id="respawnBtn">Возродиться</button>
+</div>
 
-// ============ СЕТЬ ============
-function connect() {
-  setStatus('Подключение...');
-  try { ws = new WebSocket(SERVER_URL); }
-  catch { setStatus('Не удалось подключиться', 'error'); return; }
-
-  ws.onopen = () => {
-    setStatus('Подключено', 'connected');
-
-    const savedName = localStorage.getItem('snakeio_playerName');
-    if (savedName && savedName.trim()) {
-      ws.send(JSON.stringify({ type: 'setName', name: savedName.trim().slice(0, 14) }));
-    }
-
-    const savedColor = localStorage.getItem('snakeio_color');
-    if (savedColor && /^#[0-9a-fA-F]{6}$/.test(savedColor)) {
-      ws.send(JSON.stringify({ type: 'setColor', color: savedColor }));
-    }
-  };
-
-  ws.onmessage = (event) => {
-    let msg;
-    try { msg = JSON.parse(event.data); } catch { return; }
-
-    if (msg.type === 'welcome') {
-      myId = msg.id;
-      worldW = msg.worldW;
-      worldH = msg.worldH;
-    } else if (msg.type === 'state') {
-      prevState = lastState;
-      prevStateTime = lastStateTime;
-      lastState = msg;
-      lastStateTime = performance.now();
-      updateHUD();
-      updateLeaderboard();
-      checkDeath();
-    } else if (msg.type === 'error') {
-      setStatus(msg.message || 'Ошибка', 'error');
-    }
-  };
-
-  ws.onclose = () => {
-    setStatus('Соединение потеряно', 'error');
-    if (!reconnectTimer) {
-      reconnectTimer = setTimeout(() => { reconnectTimer = null; connect(); }, 3000);
-    }
-  };
-
-  ws.onerror = () => setStatus('Ошибка соединения', 'error');
-}
-
-function checkDeath() {
-  if (!lastState || !myId) return;
-  const me = lastState.snakes.find(s => s.id === myId);
-  if (!me && wasAlive) {
-    wasAlive = false;
-    finalLengthEl.textContent = lengthEl.textContent;
-    finalKillsEl.textContent = killsEl.textContent;
-    deathScreen.classList.add('show');
-  } else if (me) {
-    wasAlive = true;
-    deathScreen.classList.remove('show');
-  }
-}
-
-function sendInput() {
-  if (ws && ws.readyState === 1) {
-    ws.send(JSON.stringify({ type: 'input', angle: inputAngle, boost: inputBoost }));
-  }
-}
-setInterval(sendInput, 50);
-
-connect();
-
-// ============ ВВОД ============
-window.addEventListener('keydown', (e) => {
-  const k = e.key.toLowerCase();
-  keys[k] = true;
-  if (k === ' ') { inputBoost = true; e.preventDefault(); }
-  if (['arrowup','arrowdown','arrowleft','arrowright'].includes(k)) e.preventDefault();
-});
-window.addEventListener('keyup', (e) => {
-  const k = e.key.toLowerCase();
-  keys[k] = false;
-  if (k === ' ') inputBoost = false;
-});
-
-canvas.addEventListener('mousemove', (e) => {
-  if (isMobile) return;
-  const rect = canvas.getBoundingClientRect();
-  mouseX = e.clientX - rect.left;
-  mouseY = e.clientY - rect.top;
-  mouseActive = true;
-});
-
-respawnBtn.addEventListener('click', () => {
-  if (ws && ws.readyState === 1) {
-    ws.send(JSON.stringify({ type: 'respawn' }));
-  }
-  deathScreen.classList.remove('show');
-});
-
-// ============ ИНТЕРПОЛЯЦИЯ ============
-function lerp(a, b, t) { return a + (b - a) * t; }
-function lerpAngle(a, b, t) {
-  let d = b - a;
-  while (d > Math.PI) d -= Math.PI * 2;
-  while (d < -Math.PI) d += Math.PI * 2;
-  return a + d * t;
-}
-
-function getInterpolatedState() {
-  if (!lastState) return null;
-  if (!prevState) return lastState;
-  const now = performance.now();
-  const interval = lastStateTime - prevStateTime;
-  if (interval <= 0) return lastState;
-  let t = (now - lastStateTime) / interval;
-  t = Math.max(0, Math.min(1, t));
-
-  const prevById = new Map();
-  for (const s of prevState.snakes) prevById.set(s.id, s);
-
-  return {
-    snakes: lastState.snakes.map(s => {
-      const p = prevById.get(s.id);
-      if (!p) return s;
-      const segments = s.segments.map((seg, i) => {
-        const ps = p.segments[i] || seg;
-        return { x: lerp(ps.x, seg.x, t), y: lerp(ps.y, seg.y, t) };
-      });
-      return {
-        ...s,
-        x: lerp(p.x, s.x, t),
-        y: lerp(p.y, s.y, t),
-        angle: lerpAngle(p.angle, s.angle, t),
-        segments
-      };
-    }),
-    foods: lastState.foods,
-    tick: lastState.tick
-  };
-}
-
-// ============ HUD ============
-function updateHUD() {
-  if (!lastState || !myId) return;
-  const me = lastState.snakes.find(s => s.id === myId);
-  if (!me) return;
-  lengthEl.textContent = me.bodySegments;
-  killsEl.textContent = me.kills || 0;
-  coinsEl.textContent = me.coins || 0;
-  boostEl.textContent = Math.round(me.boost);
-}
-
-function updateLeaderboard() {
-  if (!lastState) return;
-  const sorted = [...lastState.snakes].sort((a, b) => b.bodySegments - a.bodySegments).slice(0, 5);
-  let html = '';
-  sorted.forEach((s, i) => {
-    const cls = s.id === myId ? 'lb-row you' : 'lb-row';
-    html += `<div class="${cls}">
-      <span>${i + 1}.</span>
-      <span class="lb-name">${s.name || s.id}</span>
-      <span class="lb-len">${s.bodySegments}</span>
-    </div>`;
-  });
-  lbListEl.innerHTML = html;
-}
-
-// ============ РЕНДЕР ============
-function shade(hex, amt) {
-  const n = parseInt(hex.slice(1), 16);
-  const r = Math.max(0, Math.min(255, (n >> 16) + amt));
-  const g = Math.max(0, Math.min(255, ((n >> 8) & 0xff) + amt));
-  const b = Math.max(0, Math.min(255, (n & 0xff) + amt));
-  return `rgb(${r},${g},${b})`;
-}
-
-function drawSnake(s) {
-  if (!s.segments || !s.segments.length) return;
-  const isMe = s.id === myId;
-  const glow = isMe ? 1 : 0.5;
-
-  for (let i = s.segments.length - 1; i >= 0; i--) {
-    const p = s.segments[i];
-    const t = i / Math.max(1, s.segments.length - 1);
-    const radius = 10 * (1 - t * 0.5);
-    ctx.save();
-    ctx.shadowColor = s.color;
-    ctx.shadowBlur = (i === 0 ? 20 : i < 3 ? 12 : 4) * glow;
-    const grad = ctx.createRadialGradient(p.x - radius * 0.35, p.y - radius * 0.35, 0, p.x, p.y, radius);
-    grad.addColorStop(0, i === 0 ? '#fff' : shade(s.color, 60));
-    grad.addColorStop(0.5, s.color);
-    grad.addColorStop(1, shade(s.color, -50));
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
-
-  const dir = s.angle;
-  const perpX = -Math.sin(dir), perpY = Math.cos(dir);
-  const e1x = s.x + Math.cos(dir) * 4 + perpX * 5;
-  const e1y = s.y + Math.sin(dir) * 4 + perpY * 5;
-  const e2x = s.x + Math.cos(dir) * 4 - perpX * 5;
-  const e2y = s.y + Math.sin(dir) * 4 - perpY * 5;
-
-  ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.arc(e1x, e1y, 3.3, 0, Math.PI * 2);
-  ctx.arc(e2x, e2y, 3.3, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#111';
-  ctx.beginPath();
-  ctx.arc(e1x + Math.cos(dir) * 1.2, e1y + Math.sin(dir) * 1.2, 1.6, 0, Math.PI * 2);
-  ctx.arc(e2x + Math.cos(dir) * 1.2, e2y + Math.sin(dir) * 1.2, 1.6, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.save();
-  ctx.font = 'bold 12px "Segoe UI", Arial';
-  ctx.textAlign = 'center';
-  ctx.fillStyle = isMe ? '#0f0' : '#fff';
-  ctx.shadowColor = 'rgba(0,0,0,0.8)';
-  ctx.shadowBlur = 4;
-  ctx.fillText(s.name || s.id, s.x, s.y - 22);
-  ctx.restore();
-}
-
-function updateCamera(state) {
-  if (!myId) return;
-  const me = state.snakes.find(s => s.id === myId);
-  if (!me) return;
-  const tx = me.x - W / 2;
-  const ty = me.y - H / 2;
-  camX += (tx - camX) * 0.15;
-  camY += (ty - camY) * 0.15;
-  camX = Math.max(0, Math.min(worldW - W, camX));
-  camY = Math.max(0, Math.min(worldH - H, camY));
-}
-
-function updateInput(state) {
-  if (!myId) return;
-  const me = state.snakes.find(s => s.id === myId);
-  if (!me) return;
-
-  if (isMobile && (joystickVector.x !== 0 || joystickVector.y !== 0)) {
-    inputAngle = Math.atan2(joystickVector.y, joystickVector.x);
-    mouseActive = false;
-    return;
-  }
-
-  let dx = 0, dy = 0;
-  if (keys['w'] || keys['ц'] || keys['arrowup']) dy -= 1;
-  if (keys['s'] || keys['ы'] || keys['arrowdown']) dy += 1;
-  if (keys['a'] || keys['ф'] || keys['arrowleft']) dx -= 1;
-  if (keys['d'] || keys['в'] || keys['arrowright']) dx += 1;
-
-  if (dx !== 0 || dy !== 0) {
-    inputAngle = Math.atan2(dy, dx);
-    mouseActive = false;
-  } else if (mouseActive && !isMobile) {
-    inputAngle = Math.atan2(mouseY + camY - me.y, mouseX + camX - me.x);
-  }
-}
-
-function draw() {
-  ctx.fillStyle = '#0d1117';
-  ctx.fillRect(0, 0, W, H);
-
-  const state = getInterpolatedState();
-  if (!state) return;
-
-  updateInput(state);
-  updateCamera(state);
-
-  ctx.save();
-  ctx.translate(-camX, -camY);
-
-  const gs = 60;
-  ctx.strokeStyle = 'rgba(80,120,180,0.07)';
-  ctx.lineWidth = 1;
-  const sx = Math.floor(camX / gs) * gs;
-  const sy = Math.floor(camY / gs) * gs;
-  for (let x = sx; x <= camX + W + gs; x += gs) {
-    ctx.beginPath(); ctx.moveTo(x, camY); ctx.lineTo(x, camY + H); ctx.stroke();
-  }
-  for (let y = sy; y <= camY + H + gs; y += gs) {
-    ctx.beginPath(); ctx.moveTo(camX, y); ctx.lineTo(camX + W, y); ctx.stroke();
-  }
-
-  ctx.strokeStyle = 'rgba(255,70,70,0.4)';
-  ctx.lineWidth = 4;
-  ctx.strokeRect(0, 0, worldW, worldH);
-
-  for (const f of state.foods) {
-    const rare = f.type === 'rare';
-    const grad = ctx.createRadialGradient(f.x - f.r * 0.3, f.y - f.r * 0.3, 0, f.x, f.y, f.r);
-    grad.addColorStop(0, '#fff');
-    grad.addColorStop(0.4, rare ? '#7fddff' : '#ff5577');
-    grad.addColorStop(1, rare ? '#0088cc' : '#cc0033');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  const sorted = [...state.snakes].sort((a, b) => (a.id === myId ? 1 : 0) - (b.id === myId ? 1 : 0));
-  for (const s of sorted) drawSnake(s);
-
-  ctx.restore();
-}
-
-function loop() {
-  draw();
-  requestAnimationFrame(loop);
-}
-loop();
+<script type="module" src="./client.js"></script>
+</body>
+</html>
