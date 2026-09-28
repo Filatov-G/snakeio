@@ -296,6 +296,11 @@ wss.on('connection', (ws) => {
         }
       } else if (msg.type === 'setName') {
         if (current) current.name = String(msg.name || '').slice(0, 14) || 'Игрок';
+      } else if (msg.type === 'setColor') {
+        const color = String(msg.color || '').slice(0, 9);
+        if (/^#[0-9a-fA-F]{6}$/.test(color)) {
+          if (current) current.color = color;
+        }
       } else if (msg.type === 'respawn') {
         if (!current || !current.alive) {
           const nx = rand(200, WORLD_W - 200);
