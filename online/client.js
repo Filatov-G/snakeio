@@ -56,10 +56,16 @@ function connect() {
   ws.onopen = () => {
     setStatus('Подключено', 'connected');
 
-    // Отправляем имя из localStorage (то, что ввёл в оффлайн-игре)
+    // Отправляем имя
     const savedName = localStorage.getItem('snakeio_playerName');
     if (savedName && savedName.trim()) {
       ws.send(JSON.stringify({ type: 'setName', name: savedName.trim().slice(0, 14) }));
+    }
+
+    // Отправляем цвет из оффлайн-игры
+    const savedColor = localStorage.getItem('snakeio_color');
+    if (savedColor && /^#[0-9a-fA-F]{6}$/.test(savedColor)) {
+      ws.send(JSON.stringify({ type: 'setColor', color: savedColor }));
     }
   };
 
