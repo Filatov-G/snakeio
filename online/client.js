@@ -1,5 +1,14 @@
 import { SERVER_URL } from './config.js';
 
+const isTouchDevice = (() => {
+  if ('ontouchstart' in window) return true;
+  if (navigator.maxTouchPoints > 0) return true;
+  if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return true;
+  return false;
+})();
+const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent);
+const isMobile = isTouchDevice || isMobileUA;
+
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
@@ -13,8 +22,18 @@ function resize() {
   canvas.style.width = W + 'px';
   canvas.style.height = H + 'px';
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  if (isMobile) {
+    updateJoystickRect();
+    checkOrientation();
+  }
 }
 window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', () => {
+  setTimeout(() => {
+    resize();
+    if (isMobile) { updateJoystickRect(); checkOrientation(); }
+  }, 200);
+});
 resize();
 
 const lengthEl = document.getElementById('length');
@@ -27,6 +46,11 @@ const deathScreen = document.getElementById('deathScreen');
 const finalLengthEl = document.getElementById('finalLength');
 const finalKillsEl = document.getElementById('finalKills');
 const respawnBtn = document.getElementById('respawnBtn');
+const touchControls = document.getElementById('touchControls');
+const joystick = document.getElementById('joystick');
+const joystickKnob = document.getElementById('joystickKnob');
+const boostBtn = document.getElementById('boostBtn');
+const rotateNotice = document.getElementById('rotateNotice');
 
 function setStatus(text, cls = '') {
   statusEl.textContent = text;
@@ -45,9 +69,142 @@ let mouseActive = false;
 let wasAlive = true;
 const keys = {};
 
+let joystickActive = false;
+let joystickTouchId = null;
+let joystickVector = { x: 0, y: 0 };
+let boostTouchId = null;
+const JOYSTICK_MAX_DIST = 55;
+let joystickRect = null;
+
 let ws = null;
 let reconnectTimer = null;
 
+// ============ МОБИЛЬНОЕ УПРАВЛЕНИЕ ============
+function initTouchControls() {
+  if (!isMobile) return;
+  touchControls.classList.add('visible');
+  checkOrientation();
+  updateJoystickRect();
+}
+
+function updateJoystickRect() {
+  if (!joystick) return;
+  joystickRect = joystick.getBoundingClientRect();
+}
+
+function checkOrientation() {
+  if (!isMobile) return;
+  const isPortrait = window.innerHeight > window.innerWidth;
+  if (isPortrait) rotateNotice.classList.add('show');
+  else rotateNotice.classList.remove('show');
+}
+
+function onJoystickStart(e) {
+  e.preventDefault();
+  if (joystickTouchId !== null) return;
+  const touch = e.changedTouches[0];
+  joystickTouchId = touch.identifier;
+  joystickActive = true;
+  joystick.classList.add('active');
+  updateJoystickRect();
+  updateJoystickFromTouch(touch);
+}
+
+function onJoystickMove(e) {
+  e.preventDefault();
+  if (joystickTouchId === null) return;
+  for (let i = 0; i < e.changedTouches.length; i++) {
+    const touch = e.changedTouches[i];
+    if (touch.identifier === joystickTouchId) {
+      updateJoystickFromTouch(touch);
+      break;
+    }
+  }
+}
+
+function onJoystickEnd(e) {
+  e.preventDefault();
+  if (joystickTouchId === null) return;
+  for (let i = 0; i < e.changedTouches.length; i++) {
+    const touch = e.changedTouches[i];
+    if (touch.identifier === joystickTouchId) {
+      resetJoystick();
+      break;
+    }
+  }
+}
+
+function updateJoystickFromTouch(touch) {
+  if (!joystickRect) updateJoystickRect();
+  if (!joystickRect) return;
+  const cx = joystickRect.left + joystickRect.width / 2;
+  const cy = joystickRect.top + joystickRect.height / 2;
+  let dx = touch.clientX - cx;
+  let dy = touch.clientY - cy;
+  const maxDist = joystickRect.width / 2;
+  let nx = dx / maxDist;
+  let ny = dy / maxDist;
+  const nLen = Math.hypot(nx, ny);
+  if (nLen > 1) { nx /= nLen; ny /= nLen; }
+  const knobX = nx * JOYSTICK_MAX_DIST;
+  const knobY = ny * JOYSTICK_MAX_DIST;
+  joystickKnob.style.transform = `translate(${knobX}px, ${knobY}px)`;
+  if (Math.hypot(nx, ny) < 0.15) {
+    joystickVector.x = 0;
+    joystickVector.y = 0;
+  } else {
+    joystickVector.x = nx;
+    joystickVector.y = ny;
+    mouseActive = false;
+  }
+}
+
+function resetJoystick() {
+  joystickActive = false;
+  joystickTouchId = null;
+  joystick.classList.remove('active');
+  joystickKnob.style.transform = 'translate(0, 0)';
+  joystickVector.x = 0;
+  joystickVector.y = 0;
+}
+
+function onBoostStart(e) {
+  e.preventDefault();
+  if (boostTouchId !== null) return;
+  const touch = e.changedTouches[0];
+  boostTouchId = touch.identifier;
+  boostBtn.classList.add('pressed');
+  inputBoost = true;
+}
+
+function onBoostEnd(e) {
+  e.preventDefault();
+  if (boostTouchId === null) return;
+  for (let i = 0; i < e.changedTouches.length; i++) {
+    const touch = e.changedTouches[i];
+    if (touch.identifier === boostTouchId) {
+      boostTouchId = null;
+      boostBtn.classList.remove('pressed');
+      inputBoost = false;
+      break;
+    }
+  }
+}
+
+if (isMobile) {
+  joystick.addEventListener('touchstart', onJoystickStart, { passive: false });
+  joystick.addEventListener('touchmove', onJoystickMove, { passive: false });
+  joystick.addEventListener('touchend', onJoystickEnd, { passive: false });
+  joystick.addEventListener('touchcancel', onJoystickEnd, { passive: false });
+
+  boostBtn.addEventListener('touchstart', onBoostStart, { passive: false });
+  boostBtn.addEventListener('touchend', onBoostEnd, { passive: false });
+  boostBtn.addEventListener('touchcancel', onBoostEnd, { passive: false });
+}
+
+initTouchControls();
+
+// ============ СЕТЬ ============
 function connect() {
   setStatus('Подключение...');
   try { ws = new WebSocket(SERVER_URL); }
@@ -56,13 +213,11 @@ function connect() {
   ws.onopen = () => {
     setStatus('Подключено', 'connected');
 
-    // Отправляем имя
     const savedName = localStorage.getItem('snakeio_playerName');
     if (savedName && savedName.trim()) {
       ws.send(JSON.stringify({ type: 'setName', name: savedName.trim().slice(0, 14) }));
     }
 
-    // Отправляем цвет из оффлайн-игры
     const savedColor = localStorage.getItem('snakeio_color');
     if (savedColor && /^#[0-9a-fA-F]{6}$/.test(savedColor)) {
       ws.send(JSON.stringify({ type: 'setColor', color: savedColor }));
@@ -123,6 +278,7 @@ setInterval(sendInput, 50);
 
 connect();
 
+// ============ ВВОД ============
 window.addEventListener('keydown', (e) => {
   const k = e.key.toLowerCase();
   keys[k] = true;
@@ -136,6 +292,7 @@ window.addEventListener('keyup', (e) => {
 });
 
 canvas.addEventListener('mousemove', (e) => {
+  if (isMobile) return;
   const rect = canvas.getBoundingClientRect();
   mouseX = e.clientX - rect.left;
   mouseY = e.clientY - rect.top;
@@ -149,6 +306,7 @@ respawnBtn.addEventListener('click', () => {
   deathScreen.classList.remove('show');
 });
 
+// ============ ИНТЕРПОЛЯЦИЯ ============
 function lerp(a, b, t) { return a + (b - a) * t; }
 function lerpAngle(a, b, t) {
   let d = b - a;
@@ -190,6 +348,7 @@ function getInterpolatedState() {
   };
 }
 
+// ============ HUD ============
 function updateHUD() {
   if (!lastState || !myId) return;
   const me = lastState.snakes.find(s => s.id === myId);
@@ -215,6 +374,7 @@ function updateLeaderboard() {
   lbListEl.innerHTML = html;
 }
 
+// ============ РЕНДЕР ============
 function shade(hex, amt) {
   const n = parseInt(hex.slice(1), 16);
   const r = Math.max(0, Math.min(255, (n >> 16) + amt));
@@ -291,6 +451,12 @@ function updateInput(state) {
   const me = state.snakes.find(s => s.id === myId);
   if (!me) return;
 
+  if (isMobile && (joystickVector.x !== 0 || joystickVector.y !== 0)) {
+    inputAngle = Math.atan2(joystickVector.y, joystickVector.x);
+    mouseActive = false;
+    return;
+  }
+
   let dx = 0, dy = 0;
   if (keys['w'] || keys['ц'] || keys['arrowup']) dy -= 1;
   if (keys['s'] || keys['ы'] || keys['arrowdown']) dy += 1;
@@ -300,7 +466,7 @@ function updateInput(state) {
   if (dx !== 0 || dy !== 0) {
     inputAngle = Math.atan2(dy, dx);
     mouseActive = false;
-  } else if (mouseActive) {
+  } else if (mouseActive && !isMobile) {
     inputAngle = Math.atan2(mouseY + camY - me.y, mouseX + camX - me.x);
   }
 }
