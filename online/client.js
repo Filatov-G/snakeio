@@ -1,13 +1,9 @@
 import { SERVER_URL } from './config.js';
 
-const isTouchDevice = (() => {
-  if ('ontouchstart' in window) return true;
-  if (navigator.maxTouchPoints > 0) return true;
-  if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return true;
-  return false;
-})();
 const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent);
-const isMobile = isTouchDevice || isMobileUA;
+const isCoarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+const isSmallScreen = Math.min(window.innerWidth, window.innerHeight) < 900;
+const isMobile = isMobileUA && (isCoarsePointer || isSmallScreen);
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
