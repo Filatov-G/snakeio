@@ -100,6 +100,9 @@
   .stat.crystals { border-color: rgba(120, 200, 255, 0.5); }
   .stat.crystals .value { color: #7fddff; text-shadow: 0 0 10px rgba(120, 200, 255, 0.9); }
 
+  .stat.candies { border-color: rgba(255, 120, 30, 0.5); }
+  .stat.candies .value { color: #ff8833; text-shadow: 0 0 10px rgba(255, 140, 30, 0.9); }
+
   .stat.boost { border-color: rgba(255, 200, 0, 0.3); opacity: 0.4; transition: opacity 0.2s; }
   .stat.boost.active { opacity: 1; box-shadow: 0 0 20px rgba(255, 200, 0, 0.5); }
   .stat.boost .value { color: #ffcc00; text-shadow: 0 0 10px rgba(255,200,0,0.6); }
@@ -328,7 +331,7 @@
    background: linear-gradient(135deg, rgba(0, 200, 255, 0.35), rgba(100, 100, 255, 0.35));
    box-shadow: 0 8px 32px rgba(0, 200, 255, 0.4);
  }
-  #customScreen { z-index: 25; }
+   #customScreen { z-index: 25; }
 
   #customPanel {
     background: rgba(0, 0, 0, 0.4);
@@ -881,7 +884,6 @@
     #customPanel, #shopPanel { padding: 18px 16px; max-width: 96vw; }
   }
 
-  /* ===== МИНИ-КАРТА ===== */
   #minimap {
     position: absolute;
     right: 14px;
@@ -913,7 +915,6 @@
     }
   }
 
-  /* ===== ПОЛЗУНОК ГРОМКОСТИ ===== */
   .volume-slider {
     position: relative;
     width: 100%;
@@ -970,7 +971,6 @@
     pointer-events: none;
   }
 
-  /* ===== НОВАЯ КНОПКА НАСТРОЕК (наверху) ===== */
   #settingsBtn {
     position: absolute;
     top: 20px;
@@ -1339,7 +1339,6 @@
     box-shadow: 0 8px 24px rgba(200, 120, 255, 0.25);
   }
 
-  /* ===== ДОСТИЖЕНИЯ ===== */
   #achievementsModal { z-index: 42; }
 
   #achievementsPanel {
@@ -1550,7 +1549,6 @@
     text-shadow: 0 0 10px rgba(120, 200, 255, 0.9);
   }
 
-  /* ===== НАСТРОЙКИ ===== */
   #settingsModal { z-index: 43; }
 
   #settingsPanel {
@@ -1636,6 +1634,7 @@
     .ach-toast-name { font-size: 13px; }
     .ach-toast-reward { font-size: 12px; }
   }
+
   /* ===== 🎃 HALLOWEEN DECOR ===== */
   #halloweenDecor {
     position: absolute;
@@ -1645,36 +1644,6 @@
     overflow: hidden;
   }
   #halloweenDecor.hidden { display: none; }
-
-  .hw-web {
-    position: absolute;
-    width: 140px;
-    height: 140px;
-    background:
-      radial-gradient(circle at 0 0, transparent 60%, rgba(220, 220, 255, 0.25) 61%, transparent 62%),
-      radial-gradient(circle at 0 0, transparent 40%, rgba(220, 220, 255, 0.2) 41%, transparent 42%),
-      radial-gradient(circle at 0 0, transparent 20%, rgba(220, 220, 255, 0.15) 21%, transparent 22%);
-    opacity: 0.8;
-  }
-  .hw-web-tl { top: 0; left: 0; }
-  .hw-web-tr { top: 0; right: 0; transform: scaleX(-1); }
-  .hw-web-bl { bottom: 0; left: 0; transform: scaleY(-1); }
-  .hw-web-br { bottom: 0; right: 0; transform: scale(-1, -1); }
-
-  .hw-pumpkin {
-    position: absolute;
-    bottom: 16px;
-    font-size: 42px;
-    filter: drop-shadow(0 0 12px rgba(255, 140, 0, 0.8));
-    animation: hwPumpkinFloat 3s ease-in-out infinite;
-  }
-  .hw-pumpkin-bl { left: 16px; }
-  .hw-pumpkin-br { right: 16px; animation-delay: 1.5s; }
-
-  @keyframes hwPumpkinFloat {
-    0%, 100% { transform: translateY(0) rotate(-3deg); }
-    50% { transform: translateY(-6px) rotate(3deg); }
-  }
 
   .hw-spider {
     position: absolute;
@@ -1703,10 +1672,48 @@
     50% { transform: rotate(8deg); }
   }
 
-  body.halloween-mode {
+  .hw-web, .hw-pumpkin {
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  body.in-menu .hw-web,
+  body.in-menu .hw-pumpkin {
+    opacity: 1;
+  }
+
+  .hw-web {
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    background:
+      radial-gradient(circle at 0 0, transparent 60%, rgba(220, 220, 255, 0.25) 61%, transparent 62%),
+      radial-gradient(circle at 0 0, transparent 40%, rgba(220, 220, 255, 0.2) 41%, transparent 42%),
+      radial-gradient(circle at 0 0, transparent 20%, rgba(220, 220, 255, 0.15) 21%, transparent 22%);
+  }
+  .hw-web-tl { top: 0; left: 0; }
+  .hw-web-tr { top: 0; right: 0; transform: scaleX(-1); }
+  .hw-web-bl { bottom: 0; left: 0; transform: scaleY(-1); }
+  .hw-web-br { bottom: 0; right: 0; transform: scale(-1, -1); }
+
+  .hw-pumpkin {
+    position: absolute;
+    bottom: 16px;
+    font-size: 42px;
+    filter: drop-shadow(0 0 12px rgba(255, 140, 0, 0.8));
+    animation: hwPumpkinFloat 3s ease-in-out infinite;
+  }
+  .hw-pumpkin-bl { left: 16px; }
+  .hw-pumpkin-br { right: 16px; animation-delay: 1.5s; }
+
+  @keyframes hwPumpkinFloat {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-6px) rotate(3deg); }
+  }
+
+  body.halloween-mode.in-menu {
     background: radial-gradient(circle at center, #1a0a2e 0%, #0a0512 100%);
   }
-  body.halloween-mode #gameWrap {
+  body.halloween-mode.in-menu #gameWrap {
     background: #0d0714;
     box-shadow: inset 0 0 80px rgba(120, 40, 200, 0.3);
   }
@@ -1753,6 +1760,10 @@
     <div class="stat crystals">
       <span class="label">💎</span>
       <span class="value" id="crystals">0</span>
+    </div>
+    <div class="stat candies" id="candyStat" style="display:none;">
+      <span class="label">🍬</span>
+      <span class="value" id="candies">0</span>
     </div>
     <div class="stat boost" id="boostStat">
       <span class="label">Буст</span>
@@ -2028,8 +2039,7 @@
       <button id="payCancelBtn" class="btn-big">Отмена</button>
     </div>
   </div>
-</div><script>
-/* ============================================================
+</div><script>/* ============================================================
    📱 ТАЧ
    ============================================================ */
 const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent);
@@ -2072,6 +2082,8 @@ const coinsEl = document.getElementById('coins');
 const menuCoinsEl = document.getElementById('menuCoins');
 const crystalsEl = document.getElementById('crystals');
 const menuCrystalsEl = document.getElementById('menuCrystals');
+const candiesEl = document.getElementById('candies');
+const candyStatEl = document.getElementById('candyStat');
 
 const gameoverEl = document.getElementById('gameover');
 const finalScoreEl = document.getElementById('finalScore');
@@ -2161,6 +2173,56 @@ const joystick = document.getElementById('joystick');
 const joystickKnob = document.getElementById('joystickKnob');
 const boostBtn = document.getElementById('boostBtn');
 const rotateNotice = document.getElementById('rotateNotice');
+
+
+/* ============================================================
+   🎃 HALLOWEEN MODE
+   ============================================================ */
+function isHalloweenPeriod() {
+  const now = new Date();
+  const month = now.getMonth();
+  const day = now.getDate();
+  return month === 9 && day >= 12 && day <= 31;
+}
+
+function applyHalloweenMode() {
+  const decor = document.getElementById('halloweenDecor');
+  if (!decor) return;
+  if (isHalloweenPeriod()) {
+    decor.classList.remove('hidden');
+    document.body.classList.add('halloween-mode');
+    updateHalloweenMenuState();
+  } else {
+    decor.classList.add('hidden');
+    document.body.classList.remove('halloween-mode');
+    document.body.classList.remove('in-menu');
+  }
+}
+
+function updateHalloweenMenuState() {
+  const mainMenuEl = document.getElementById('mainMenu');
+  const customScreenEl = document.getElementById('customScreen');
+  const shopScreenEl = document.getElementById('shopScreen');
+  const achModalEl = document.getElementById('achievementsModal');
+  const dailyRewardEl2 = document.getElementById('dailyReward');
+  const settingsModalEl = document.getElementById('settingsModal');
+  const promoModalEl = document.getElementById('promoModal');
+  const nameScreenEl = document.getElementById('nameScreen');
+
+  const menuVisible =
+    (mainMenuEl && !mainMenuEl.classList.contains('hidden')) ||
+    (customScreenEl && !customScreenEl.classList.contains('hidden')) ||
+    (shopScreenEl && !shopScreenEl.classList.contains('hidden')) ||
+    (achModalEl && !achModalEl.classList.contains('hidden')) ||
+    (dailyRewardEl2 && !dailyRewardEl2.classList.contains('hidden')) ||
+    (settingsModalEl && !settingsModalEl.classList.contains('hidden')) ||
+    (promoModalEl && !promoModalEl.classList.contains('hidden')) ||
+    (nameScreenEl && !nameScreenEl.classList.contains('hidden'));
+
+  document.body.classList.toggle('in-menu', menuVisible);
+}
+
+setInterval(updateHalloweenMenuState, 300);
 
 
 /* ============================================================
@@ -2309,6 +2371,7 @@ const BOOST_MIN_TO_START = 15;
 
 const FOOD_COUNT = 90;
 const FOOD_SPAWN_DELAY = 200;
+const CANDY_CHANCE = 0.10;
 
 const DEATH_FOOD_STEP = 1;
 const TUTORIAL_STEP_DURATION = 7000;
@@ -2424,6 +2487,7 @@ let playerName = localStorage.getItem('snakeio_playerName') || '';
 
 let coins = parseInt(localStorage.getItem('snakeio_coins') || '0', 10);
 let crystals = parseInt(localStorage.getItem('snakeio_crystals') || '25', 10);
+let candies = parseInt(localStorage.getItem('snakeio_candies') || '0', 10);
 
 let ownedColors = JSON.parse(localStorage.getItem('snakeio_ownedColors') || '[]');
 
@@ -2514,6 +2578,7 @@ coinsEl.textContent = coins;
 menuCoinsEl.textContent = coins;
 crystalsEl.textContent = crystals;
 menuCrystalsEl.textContent = crystals;
+if (candiesEl) candiesEl.textContent = candies;
 
 
 /* ============================================================
@@ -2593,6 +2658,28 @@ document.querySelectorAll('[data-graphics]').forEach(btn => {
 document.querySelectorAll('[data-volume]').forEach(btn => {
   btn.addEventListener('click', () => setVolumeLevel(btn.getAttribute('data-volume')));
 });
+
+
+/* ============================================================
+   КОНФЕТЫ
+   ============================================================ */
+function addCandies(n) {
+  candies += n;
+  localStorage.setItem('snakeio_candies', candies);
+  updateCandiesUI();
+}
+
+function updateCandiesUI() {
+  const stat = document.getElementById('candyStat');
+  const el = document.getElementById('candies');
+  if (!stat || !el) return;
+  el.textContent = candies;
+  if (isHalloweenPeriod()) {
+    stat.style.display = '';
+  } else {
+    stat.style.display = 'none';
+  }
+}
 
 
 /* ============================================================
@@ -3705,30 +3792,9 @@ buyBtn.addEventListener('click', () => {
   selectedShopColor = null;
   updateBuyBlock();
   checkAchievements();
-});
-/* ============================================================
+});/* ============================================================
    ЕЖЕДНЕВНАЯ НАГРАДА
    ============================================================ */
-/* ===== 🎃 HALLOWEEN MODE ===== */
-function isHalloweenPeriod() {
-  const now = new Date();
-  const month = now.getMonth();
-  const day = now.getDate();
-  return month === 9 && day >= 1 && day <= 31;
-}
-
-function applyHalloweenMode() {
-  const decor = document.getElementById('halloweenDecor');
-  if (!decor) return;
-  if (isHalloweenPeriod()) {
-    decor.classList.remove('hidden');
-    document.body.classList.add('halloween-mode');
-  } else {
-    decor.classList.add('hidden');
-    document.body.classList.remove('halloween-mode');
-  }
-}
-
 function checkDailyReward() {
   const today = new Date().toDateString();
   const lastClaim = localStorage.getItem('snakeio_lastRewardDate');
@@ -3736,11 +3802,22 @@ function checkDailyReward() {
 
   const dayOfWeek = new Date().getDay();
   const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
-  const reward = isWeekend ? 20 : 10;
+  let reward = isWeekend ? 20 : 10;
+
+  // 🎃 Хэллоуин: +10 монет бонусом
+  if (isHalloweenPeriod()) {
+    reward += 10;
+  }
 
   rewardDayEl.textContent = isWeekend ? '🎉 Выходной день' : '📅 Будний день';
+  if (isHalloweenPeriod()) {
+    rewardDayEl.textContent = '🎃 Хэллоуинская неделя!';
+  }
   rewardAmountEl.textContent = '+' + reward;
   rewardTextEl.textContent = isWeekend ? 'Двойная награда!' : 'Заходи каждый день!';
+  if (isHalloweenPeriod()) {
+    rewardTextEl.textContent = '🎃 +10 монет за Хэллоуин!';
+  }
   dailyRewardEl.classList.remove('hidden');
 
   claimRewardBtn.onclick = () => {
@@ -4256,6 +4333,20 @@ function initWorld() {
     bots.push(bot);
   }
 
+  // 🎃 Хэллоуин: один дополнительный чёрный бот-змейка
+  if (isHalloweenPeriod()) {
+    let bx, by, ok, tries = 0;
+    do {
+      bx = rand(80, WORLD_W - 80);
+      by = rand(80, WORLD_H - 80);
+      ok = dist2(bx, by, cx, cy) > 300 * 300;
+      tries++;
+    } while (!ok && tries < 100);
+    const blackBot = makeSnake(bx, by, rand(0, Math.PI * 2), '#111111', false);
+    computeSegments(blackBot);
+    bots.push(blackBot);
+  }
+
   foods = [];
   lastFoodSpawn = 0;
   for (let i = 0; i < FOOD_COUNT; i++) spawnFood(true);
@@ -4308,12 +4399,13 @@ function spawnFood(force = false) {
   let tries = 0;
   while (tries++ < 100) {
     const isRare = Math.random() < 0.22;
+    const isCandy = isHalloweenPeriod() && !isRare && Math.random() < CANDY_CHANCE;
     const f = {
       x: rand(FOOD_RADIUS + 5, WORLD_W - FOOD_RADIUS - 5),
       y: rand(FOOD_RADIUS + 5, WORLD_H - FOOD_RADIUS - 5),
       pulse: Math.random() * Math.PI * 2,
-      r: isRare ? FOOD_RADIUS * 1.4 : FOOD_RADIUS,
-      type: isRare ? 'rare' : 'common',
+      r: isCandy ? FOOD_RADIUS * 1.2 : (isRare ? FOOD_RADIUS * 1.4 : FOOD_RADIUS),
+      type: isCandy ? 'candy' : (isRare ? 'rare' : 'common'),
       xp: isRare ? 30 : 10,
       lengthGain: isRare ? 2 : 1
     };
@@ -4625,9 +4717,24 @@ function moveSnake(snake, dt) {
     const dx = snake.x - f.x, dy = snake.y - f.y;
     if (dx * dx + dy * dy < (HEAD_RADIUS + f.r) ** 2) {
       const isRare = f.type === 'rare';
-      emitParticles(f.x, f.y, isRare ? 'rgb(120,220,255)' : 'rgb(255,80,80)', isRare ? 22 : 12, isRare ? 1.5 : 1);
+      const isCandy = f.type === 'candy';
+
+      if (isCandy) {
+        emitParticles(f.x, f.y, 'rgb(255,150,50)', 18, 1.3);
+      } else {
+        emitParticles(f.x, f.y, isRare ? 'rgb(120,220,255)' : 'rgb(255,80,80)', isRare ? 22 : 12, isRare ? 1.5 : 1);
+      }
+
       foods.splice(i, 1);
-      if (snake.isPlayer) score += (f.xp || 10);
+
+      if (snake.isPlayer) {
+        score += (f.xp || 10);
+        if (isCandy) {
+          addCandies(1);
+          addPopup(f.x, f.y, '+1 🍬', '#ff8833', true);
+        }
+      }
+
       const gain = f.lengthGain || 1;
       for (let k = 0; k < gain; k++) {
         const last = snake.body[snake.body.length - 1];
@@ -5416,10 +5523,19 @@ function draw() {
       const pulse = 1 + Math.sin(f.pulse) * 0.15;
       const r = f.r * pulse;
       const isRare = f.type === 'rare';
-      const glow = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, r * 3);
-      glow.addColorStop(0, isRare ? 'rgba(120, 220, 255, 0.85)' : 'rgba(255, 90, 120, 0.8)');
-      glow.addColorStop(0.4, isRare ? 'rgba(80, 180, 255, 0.35)' : 'rgba(255, 60, 100, 0.3)');
-      glow.addColorStop(1, isRare ? 'rgba(0, 100, 200, 0)' : 'rgba(255, 0, 80, 0)');
+      const isCandy = f.type === 'candy';
+      let glow;
+      if (isCandy) {
+        glow = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, r * 3);
+        glow.addColorStop(0, 'rgba(255, 200, 100, 0.9)');
+        glow.addColorStop(0.4, 'rgba(255, 140, 40, 0.4)');
+        glow.addColorStop(1, 'rgba(200, 80, 0, 0)');
+      } else {
+        glow = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, r * 3);
+        glow.addColorStop(0, isRare ? 'rgba(120, 220, 255, 0.85)' : 'rgba(255, 90, 120, 0.8)');
+        glow.addColorStop(0.4, isRare ? 'rgba(80, 180, 255, 0.35)' : 'rgba(255, 60, 100, 0.3)');
+        glow.addColorStop(1, isRare ? 'rgba(0, 100, 200, 0)' : 'rgba(255, 0, 80, 0)');
+      }
       ctx.fillStyle = glow;
       ctx.beginPath();
       ctx.arc(f.x, f.y, r * 3, 0, Math.PI * 2);
@@ -5432,14 +5548,39 @@ function draw() {
     const pulse = 1 + Math.sin(f.pulse) * 0.15;
     const r = f.r * pulse;
     const isRare = f.type === 'rare';
-    const grad = ctx.createRadialGradient(f.x - r * 0.3, f.y - r * 0.3, 0, f.x, f.y, r);
-    grad.addColorStop(0, '#ffffff');
-    grad.addColorStop(0.4, isRare ? '#7fddff' : '#ff5577');
-    grad.addColorStop(1, isRare ? '#0088cc' : '#cc0033');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(f.x, f.y, r, 0, Math.PI * 2);
-    ctx.fill();
+    const isCandy = f.type === 'candy';
+
+    if (isCandy) {
+      ctx.save();
+      ctx.shadowColor = '#ff8833';
+      ctx.shadowBlur = 18;
+      const grad = ctx.createRadialGradient(f.x - r * 0.3, f.y - r * 0.3, 0, f.x, f.y, r);
+      grad.addColorStop(0, '#ffffaa');
+      grad.addColorStop(0.4, '#ff8833');
+      grad.addColorStop(1, '#cc4400');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(f.x - r - 3, f.y - r * 0.5);
+      ctx.lineTo(f.x - r - 1, f.y + r * 0.5);
+      ctx.moveTo(f.x + r + 1, f.y - r * 0.5);
+      ctx.lineTo(f.x + r + 3, f.y + r * 0.5);
+      ctx.stroke();
+      ctx.restore();
+    } else {
+      const grad = ctx.createRadialGradient(f.x - r * 0.3, f.y - r * 0.3, 0, f.x, f.y, r);
+      grad.addColorStop(0, '#ffffff');
+      grad.addColorStop(0.4, isRare ? '#7fddff' : '#ff5577');
+      grad.addColorStop(1, isRare ? '#0088cc' : '#cc0033');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 
   drawFireTrail();
@@ -5483,7 +5624,13 @@ function drawMinimap() {
   minimapCtx.strokeRect(1, 1, mw - 2, mh - 2);
 
   for (const f of foods) {
-    minimapCtx.fillStyle = f.type === 'rare' ? '#7fddff' : '#ff4466';
+    if (f.type === 'candy') {
+      minimapCtx.fillStyle = '#ff8833';
+    } else if (f.type === 'rare') {
+      minimapCtx.fillStyle = '#7fddff';
+    } else {
+      minimapCtx.fillStyle = '#ff4466';
+    }
     minimapCtx.fillRect(f.x * sx - 1, f.y * sy - 1, 2.5, 2.5);
   }
 
@@ -5590,6 +5737,7 @@ gameLoopRunning = true;
 requestAnimationFrame(gameLoop);
 checkDailyReward();
 applyHalloweenMode();
+updateCandiesUI();
 checkAchievements();
 checkElementalSkinAchievement();
 updateAchBadge();
