@@ -1636,6 +1636,80 @@
     .ach-toast-name { font-size: 13px; }
     .ach-toast-reward { font-size: 12px; }
   }
+  /* ===== 🎃 HALLOWEEN DECOR ===== */
+  #halloweenDecor {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 3;
+    overflow: hidden;
+  }
+  #halloweenDecor.hidden { display: none; }
+
+  .hw-web {
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    background:
+      radial-gradient(circle at 0 0, transparent 60%, rgba(220, 220, 255, 0.25) 61%, transparent 62%),
+      radial-gradient(circle at 0 0, transparent 40%, rgba(220, 220, 255, 0.2) 41%, transparent 42%),
+      radial-gradient(circle at 0 0, transparent 20%, rgba(220, 220, 255, 0.15) 21%, transparent 22%);
+    opacity: 0.8;
+  }
+  .hw-web-tl { top: 0; left: 0; }
+  .hw-web-tr { top: 0; right: 0; transform: scaleX(-1); }
+  .hw-web-bl { bottom: 0; left: 0; transform: scaleY(-1); }
+  .hw-web-br { bottom: 0; right: 0; transform: scale(-1, -1); }
+
+  .hw-pumpkin {
+    position: absolute;
+    bottom: 16px;
+    font-size: 42px;
+    filter: drop-shadow(0 0 12px rgba(255, 140, 0, 0.8));
+    animation: hwPumpkinFloat 3s ease-in-out infinite;
+  }
+  .hw-pumpkin-bl { left: 16px; }
+  .hw-pumpkin-br { right: 16px; animation-delay: 1.5s; }
+
+  @keyframes hwPumpkinFloat {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-6px) rotate(3deg); }
+  }
+
+  .hw-spider {
+    position: absolute;
+    top: -10px;
+    font-size: 26px;
+    filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.9));
+    transform-origin: top center;
+    animation: hwSpiderSwing 4s ease-in-out infinite;
+  }
+  .hw-spider::before {
+    content: '';
+    position: absolute;
+    top: -300px;
+    left: 50%;
+    width: 1px;
+    height: 300px;
+    background: linear-gradient(to bottom, transparent, rgba(200, 200, 220, 0.5));
+    transform: translateX(-50%);
+  }
+  .hw-spider-1 { left: 15%; animation-delay: 0s; }
+  .hw-spider-2 { left: 50%; animation-delay: 1.2s; font-size: 32px; }
+  .hw-spider-3 { left: 82%; animation-delay: 2.4s; }
+
+  @keyframes hwSpiderSwing {
+    0%, 100% { transform: rotate(-8deg); }
+    50% { transform: rotate(8deg); }
+  }
+
+  body.halloween-mode {
+    background: radial-gradient(circle at center, #1a0a2e 0%, #0a0512 100%);
+  }
+  body.halloween-mode #gameWrap {
+    background: #0d0714;
+    box-shadow: inset 0 0 80px rgba(120, 40, 200, 0.3);
+  }
 </style>
 </head><body>
 
@@ -1646,6 +1720,18 @@
 </div>
 
 <div id="gameWrap">
+  <!-- 🎃 HALLOWEEN DECOR -->
+  <div id="halloweenDecor" class="hidden">
+    <div class="hw-web hw-web-tl"></div>
+    <div class="hw-web hw-web-tr"></div>
+    <div class="hw-web hw-web-bl"></div>
+    <div class="hw-web hw-web-br"></div>
+    <div class="hw-pumpkin hw-pumpkin-bl">🎃</div>
+    <div class="hw-pumpkin hw-pumpkin-br">🎃</div>
+    <div class="hw-spider hw-spider-1">🕷️</div>
+    <div class="hw-spider hw-spider-2">🕷️</div>
+    <div class="hw-spider hw-spider-3">🕷️</div>
+  </div>
   <audio id="bgm" src="Фоновая_музыка_Змеи.mp3" loop preload="auto"></audio>
   <button id="pauseBtn" title="Пауза">⏸</button>
   <button id="settingsBtn" title="Настройки">⚙️</button>
@@ -3623,6 +3709,26 @@ buyBtn.addEventListener('click', () => {
 /* ============================================================
    ЕЖЕДНЕВНАЯ НАГРАДА
    ============================================================ */
+/* ===== 🎃 HALLOWEEN MODE ===== */
+function isHalloweenPeriod() {
+  const now = new Date();
+  const month = now.getMonth();
+  const day = now.getDate();
+  return month === 9 && day >= 1 && day <= 31;
+}
+
+function applyHalloweenMode() {
+  const decor = document.getElementById('halloweenDecor');
+  if (!decor) return;
+  if (isHalloweenPeriod()) {
+    decor.classList.remove('hidden');
+    document.body.classList.add('halloween-mode');
+  } else {
+    decor.classList.add('hidden');
+    document.body.classList.remove('halloween-mode');
+  }
+}
+
 function checkDailyReward() {
   const today = new Date().toDateString();
   const lastClaim = localStorage.getItem('snakeio_lastRewardDate');
@@ -5483,6 +5589,7 @@ initWorld();
 gameLoopRunning = true;
 requestAnimationFrame(gameLoop);
 checkDailyReward();
+applyHalloweenMode();
 checkAchievements();
 checkElementalSkinAchievement();
 updateAchBadge();
