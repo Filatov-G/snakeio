@@ -177,6 +177,20 @@
     50% { box-shadow: 0 0 50px rgba(180, 210, 255, 0.9); }
   }
 
+  .stat.boost.pumpkin {
+    opacity: 1;
+    border-color: rgba(255, 120, 30, 0.75);
+    background: linear-gradient(135deg, rgba(255, 120, 30, 0.2), rgba(200, 60, 0, 0.25));
+    box-shadow: 0 0 30px rgba(255, 120, 30, 0.6);
+    animation: pumpkinPulse 1.8s ease-in-out infinite;
+  }
+  .stat.boost.pumpkin .label { color: #ffaa55; }
+  .stat.boost.pumpkin .value { color: #ffcc88; font-size: 12px; font-weight: 900; text-shadow: 0 0 10px rgba(255, 160, 60, 0.9); }
+  @keyframes pumpkinPulse {
+    0%, 100% { box-shadow: 0 0 30px rgba(255, 120, 30, 0.6); }
+    50% { box-shadow: 0 0 50px rgba(255, 160, 60, 0.9); }
+  }
+
   .overlay {
     position: absolute;
     inset: 0;
@@ -243,7 +257,7 @@
     margin-bottom: 24px;
   }
 
-  .menu-coins, .menu-crystals {
+  .menu-coins, .menu-crystals, .menu-candies {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -266,6 +280,14 @@
     color: #7fddff;
     text-shadow: 0 0 10px rgba(120, 200, 255, 0.7);
   }
+
+  .menu-candies {
+    background: rgba(255, 140, 30, 0.1);
+    border: 1px solid rgba(255, 140, 30, 0.4);
+    color: #ff8833;
+    text-shadow: 0 0 10px rgba(255, 140, 30, 0.7);
+  }
+  .menu-candies.hidden { display: none; }
 
   .screen-title {
     font-size: 32px;
@@ -321,17 +343,19 @@
     border: 1px solid rgba(120, 180, 255, 0.3);
   }
   .btn-tutorial:hover { background: rgba(120, 180, 255, 0.25); }
- .btn-online {
-   background: linear-gradient(135deg, rgba(0, 200, 255, 0.2), rgba(100, 100, 255, 0.2));
-   color: #7fddff;
-   border: 1px solid rgba(0, 200, 255, 0.5);
-   box-shadow: 0 0 20px rgba(0, 200, 255, 0.2);
- }
- .btn-online:hover {
-   background: linear-gradient(135deg, rgba(0, 200, 255, 0.35), rgba(100, 100, 255, 0.35));
-   box-shadow: 0 8px 32px rgba(0, 200, 255, 0.4);
- }
-   #customScreen { z-index: 25; }
+
+  .btn-online {
+    background: linear-gradient(135deg, rgba(0, 200, 255, 0.2), rgba(100, 100, 255, 0.2));
+    color: #7fddff;
+    border: 1px solid rgba(0, 200, 255, 0.5);
+    box-shadow: 0 0 20px rgba(0, 200, 255, 0.2);
+  }
+  .btn-online:hover {
+    background: linear-gradient(135deg, rgba(0, 200, 255, 0.35), rgba(100, 100, 255, 0.35));
+    box-shadow: 0 8px 32px rgba(0, 200, 255, 0.4);
+  }
+
+  #customScreen { z-index: 25; }
 
   #customPanel {
     background: rgba(0, 0, 0, 0.4);
@@ -767,6 +791,12 @@
     margin-bottom: 16px;
   }
 
+  .shop-item.halloween-item {
+    background: linear-gradient(135deg, rgba(255, 140, 30, 0.12), rgba(200, 60, 0, 0.15));
+    border: 1px solid rgba(255, 140, 30, 0.5);
+    box-shadow: 0 0 20px rgba(255, 120, 30, 0.2);
+  }
+
   .shop-item-icon { font-size: 26px; flex-shrink: 0; }
   .shop-item-info { flex: 1; }
   .shop-item-name { color: #fff; font-weight: 800; font-size: 16px; margin-bottom: 4px; }
@@ -786,6 +816,13 @@
     touch-action: manipulation;
   }
   .shop-buy-btn:disabled { background: rgba(255,255,255,0.08); color: #667788; cursor: not-allowed; }
+
+  .shop-buy-btn.halloween-buy {
+    background: linear-gradient(135deg, #ff8833, #cc4400);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(255, 120, 30, 0.5);
+  }
+  .shop-buy-btn.halloween-buy:disabled { background: rgba(255,255,255,0.08); color: #667788; box-shadow: none; }
 
   #touchControls {
     position: absolute;
@@ -1843,12 +1880,13 @@
       <button id="editNameBtn" title="Сменить имя">✏️</button>
     </div>
     <div class="logo">🐍 ЗМЕЙКА.io</div>
-    <div class="sub-version">Змейка.io v2.0 — "Achievements Update"</div>
+    <div class="sub-version">Змейка.io v2.0 — "Halloween Update"</div>
     <div class="tagline">Собирай · Расти · Выживай</div>
 
     <div class="menu-wallet">
       <div class="menu-coins">🪙 <span id="menuCoins">0</span></div>
       <div class="menu-crystals">💎 <span id="menuCrystals">0</span></div>
+      <div class="menu-candies hidden" id="menuCandiesWrap">🍬 <span id="menuCandies">0</span></div>
     </div>
 
     <div class="menu-buttons">
@@ -1963,6 +2001,16 @@
         <button id="buyRobotBtn" class="shop-buy-btn">50 💎</button>
       </div>
 
+      <div class="section-title" id="halloweenShopTitle" style="margin-top:20px; display:none;">🎃 Хэллоуинские скины</div>
+      <div class="shop-item halloween-item" id="pumpkinShopItem" style="display:none;">
+        <div class="shop-item-icon">🎃</div>
+        <div class="shop-item-info">
+          <div class="shop-item-name">Тыква-змея</div>
+          <div class="shop-item-desc">Оранжевая змейка с чёрными полосками, светящимися глазами и хвостиком. Только на Хэллоуин!</div>
+        </div>
+        <button id="buyPumpkinBtn" class="shop-buy-btn halloween-buy">50 🍬</button>
+      </div>
+
       <div class="section-title" style="margin-top:20px;">Наборы</div>
       <div class="shop-item" id="elementalPackItem">
         <div class="shop-item-icon">🔥💧☁️🍃</div>
@@ -2039,7 +2087,8 @@
       <button id="payCancelBtn" class="btn-big">Отмена</button>
     </div>
   </div>
-</div><script>/* ============================================================
+</div><script>
+/* ============================================================
    📱 ТАЧ
    ============================================================ */
 const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent);
@@ -2084,6 +2133,8 @@ const crystalsEl = document.getElementById('crystals');
 const menuCrystalsEl = document.getElementById('menuCrystals');
 const candiesEl = document.getElementById('candies');
 const candyStatEl = document.getElementById('candyStat');
+const menuCandiesEl = document.getElementById('menuCandies');
+const menuCandiesWrap = document.getElementById('menuCandiesWrap');
 
 const gameoverEl = document.getElementById('gameover');
 const finalScoreEl = document.getElementById('finalScore');
@@ -2127,6 +2178,10 @@ const waterShopItem = document.getElementById('waterShopItem');
 const buyAirBtn = document.getElementById('buyAirBtn');
 const airShopItem = document.getElementById('airShopItem');
 
+const buyPumpkinBtn = document.getElementById('buyPumpkinBtn');
+const pumpkinShopItem = document.getElementById('pumpkinShopItem');
+const halloweenShopTitle = document.getElementById('halloweenShopTitle');
+
 const ROBOT_HEX = '#8892a8';
 const ROBOT_LIGHT = '#e8ecf5';
 const ROBOT_DARK = '#3a4152';
@@ -2139,6 +2194,7 @@ const EARTH_HEX = '#7bc043';
 const FIRE_HEX = '#ff4500';
 const WATER_HEX = '#0066ff';
 const AIR_HEX = '#cfe8ff';
+const PUMPKIN_HEX = '#ff7700';
 
 const popupsEl = document.getElementById('popups');
 const paletteEl = document.getElementById('palette');
@@ -2182,7 +2238,7 @@ function isHalloweenPeriod() {
   const now = new Date();
   const month = now.getMonth();
   const day = now.getDate();
-  return month === 9 && day >= 1 && day <= 31;
+  return month === 9 && day >= 12 && day <= 31;
 }
 
 function applyHalloweenMode() {
@@ -2192,10 +2248,12 @@ function applyHalloweenMode() {
     decor.classList.remove('hidden');
     document.body.classList.add('halloween-mode');
     updateHalloweenMenuState();
+    if (menuCandiesWrap) menuCandiesWrap.classList.remove('hidden');
   } else {
     decor.classList.add('hidden');
     document.body.classList.remove('halloween-mode');
     document.body.classList.remove('in-menu');
+    if (menuCandiesWrap) menuCandiesWrap.classList.add('hidden');
   }
 }
 
@@ -2231,6 +2289,7 @@ setInterval(updateHalloweenMenuState, 300);
 const PROMO_CODES = [
   { code: 'START', caseSensitive: false, coins: 50, crystals: 10 },
   { code: '2026', caseSensitive: false, coins: 25, crystals: 5 },
+  { code: 'HALLOWEEN', caseSensitive: false, candies: 30 },
   { code: 'G_Fi/\\аT0В', caseSensitive: true, coins: 100, crystals: 25 }
 ];
 
@@ -2278,6 +2337,12 @@ function activatePromo() {
     menuCrystalsEl.textContent = crystals;
     localStorage.setItem('snakeio_crystals', crystals);
     rewardParts.push('+' + promo.crystals + ' 💎');
+  }
+  if (promo.candies && isHalloweenPeriod()) {
+    candies += promo.candies;
+    localStorage.setItem('snakeio_candies', candies);
+    updateCandiesUI();
+    rewardParts.push('+' + promo.candies + ' 🍬');
   }
   usedPromoCodes.push(promo.code);
   saveUsedPromos();
@@ -2433,7 +2498,9 @@ const COLOR_LIST = [
   { id: 'air',        hex: AIR_HEX,   name: 'Воздушный',   free: false, price: 25, logo: '☁️', logoColor: '#333333', currency: 'crystals' },
   { id: 'earth',      hex: EARTH_HEX, name: 'Травяной',    free: false, price: 25, logo: '🍃', logoColor: '#ffffff', currency: 'crystals' },
 
-  { id: 'robot',      hex: ROBOT_HEX, name: 'Робот-змея',  free: false, price: 50, logo: '🤖', logoColor: '#ffffff', currency: 'crystals', legendary: true, shopOnly: true }
+  { id: 'robot',      hex: ROBOT_HEX, name: 'Робот-змея',  free: false, price: 50, logo: '🤖', logoColor: '#ffffff', currency: 'crystals', legendary: true, shopOnly: true },
+
+  { id: 'pumpkin',    hex: PUMPKIN_HEX, name: 'Тыква',     free: false, price: 50, logo: '🎃', logoColor: '#ffffff', currency: 'candies', halloween: true }
 ];
 
 const TUTORIAL_STEPS = isMobile ? [
@@ -2451,7 +2518,8 @@ const TUTORIAL_STEPS = isMobile ? [
   { icon: '💎', title: 'Кристаллы', text: 'Убивай премиум-ботов — 10% шанс 💎.' },
   { icon: '🎨', title: 'Кастомизация', text: 'Покупай скины за 🪙 и 💎.' },
   { icon: '🤖', title: 'Робот-змея', text: '∞ буст + электро-аура!' },
-  { icon: '🍃', title: 'Травяной', text: 'Вторая жизнь при смерти!' }
+  { icon: '🍃', title: 'Травяной', text: 'Вторая жизнь при смерти!' },
+  { icon: '🎃', title: 'Тыква', text: 'Хэллоуинский скин — купи за 50 🍬!' }
 ];
 
 
@@ -2579,6 +2647,7 @@ menuCoinsEl.textContent = coins;
 crystalsEl.textContent = crystals;
 menuCrystalsEl.textContent = crystals;
 if (candiesEl) candiesEl.textContent = candies;
+if (menuCandiesEl) menuCandiesEl.textContent = candies;
 
 
 /* ============================================================
@@ -2672,13 +2741,14 @@ function addCandies(n) {
 function updateCandiesUI() {
   const stat = document.getElementById('candyStat');
   const el = document.getElementById('candies');
+  const menuEl = document.getElementById('menuCandies');
+  const menuWrap = document.getElementById('menuCandiesWrap');
   if (!stat || !el) return;
   el.textContent = candies;
-  if (isHalloweenPeriod()) {
-    stat.style.display = '';
-  } else {
-    stat.style.display = 'none';
-  }
+  if (menuEl) menuEl.textContent = candies;
+  const active = isHalloweenPeriod();
+  stat.style.display = active ? '' : 'none';
+  if (menuWrap) menuWrap.classList.toggle('hidden', !active);
 }
 
 
@@ -2694,7 +2764,8 @@ const ACHIEVEMENTS = [
   { id: 'length_100',      icon: '🐉', name: 'Мега-змея',         desc: 'Достигни длины 100',           reward: 100, currency: 'coins',    check: (s) => s.maxLength >= 100 },
   { id: 'rich_500',        icon: '💰', name: 'Богач',             desc: 'Накопи 500 монет',             reward: 50,  currency: 'coins',    check: (s) => s.coins >= 500 },
   { id: 'collector_5',     icon: '🎨', name: 'Коллекционер',      desc: 'Купи 5 скинов',                reward: 10,  currency: 'crystals', check: (s) => s.ownedSkins >= 5 },
-  { id: 'king_snake',      icon: '🐍', name: 'Царь-змея',         desc: 'Достигни длины 200',           reward: 200, currency: 'coins',    extraCrystals: 20, check: (s) => s.maxLength >= 200 }
+  { id: 'king_snake',      icon: '🐍', name: 'Царь-змея',         desc: 'Достигни длины 200',           reward: 200, currency: 'coins',    extraCrystals: 20, check: (s) => s.maxLength >= 200 },
+  { id: 'pumpkin_hunter',  icon: '🎃', name: 'Тыквенный охотник', desc: 'Купи скин Тыква',              reward: 15,  currency: 'crystals', check: () => false }
 ];
 
 let achState = JSON.parse(localStorage.getItem('snakeio_achievements') || '{}');
@@ -2869,6 +2940,7 @@ function checkAchievements() {
   };
   ACHIEVEMENTS.forEach(ach => {
     if (ach.id === 'elemental_skin') return;
+    if (ach.id === 'pumpkin_hunter') return;
     const state = achState[ach.id] || { unlocked: false, claimed: false };
     if (state.unlocked) return;
     if (ach.check(stats)) unlockAchievement(ach.id);
@@ -2880,6 +2952,12 @@ function checkElementalSkinAchievement() {
   if (state.unlocked) return;
   const hasAny = ['fire', 'water', 'air', 'earth'].some(id => isColorOwned(id));
   if (hasAny) unlockAchievement('elemental_skin');
+}
+
+function checkPumpkinAchievement() {
+  const state = achState['pumpkin_hunter'] || { unlocked: false, claimed: false };
+  if (state.unlocked) return;
+  if (isColorOwned('pumpkin')) unlockAchievement('pumpkin_hunter');
 }
 
 function updateAchBadge() {
@@ -3269,12 +3347,17 @@ function updateBoostIndicator() {
   const isAirSkin = sameColor(playerColor, AIR_HEX);
   const isEarthSkin = sameColor(playerColor, EARTH_HEX);
   const isRobotSkin = sameColor(playerColor, ROBOT_HEX);
+  const isPumpkinSkin = sameColor(playerColor, PUMPKIN_HEX);
   const labelEl = boostStat.querySelector('.label');
   const valueEl = boostStat.querySelector('.value');
 
-  boostStat.classList.remove('fire', 'water', 'air', 'earth', 'robot');
+  boostStat.classList.remove('fire', 'water', 'air', 'earth', 'robot', 'pumpkin');
 
-  if (isFireSkin) {
+  if (isPumpkinSkin) {
+    labelEl.textContent = '🎃 ТЫКВА';
+    valueEl.textContent = 'ХЭЛЛОУИН';
+    boostStat.classList.add('pumpkin');
+  } else if (isFireSkin) {
     labelEl.textContent = '🔥 ОГОНЬ';
     valueEl.textContent = '∞';
     boostStat.classList.add('fire');
@@ -3407,7 +3490,7 @@ function dist2(ax, ay, bx, by) {
 }
 
 function pickBotColor(exclude = []) {
-  const allowedColors = COLOR_LIST.filter(c => c.currency !== 'crystals' && !c.shopOnly);
+  const allowedColors = COLOR_LIST.filter(c => c.currency !== 'crystals' && !c.shopOnly && !c.halloween);
   const used = [playerColor, ...exclude].map(c => c.toLowerCase());
   const available = allowedColors.filter(c => !used.includes(c.hex.toLowerCase()));
   const pool = available.length > 0 ? available : allowedColors;
@@ -3649,12 +3732,18 @@ function drawRobotTrail() {
 function renderPalette() {
   paletteEl.innerHTML = '';
   COLOR_LIST.forEach(colorData => {
+    // 🎃 Хэллоуинские скины в палитре показываем только если куплены и в сезон
+    if (colorData.halloween && !isColorOwned(colorData.id)) return;
+    if (colorData.halloween && !isHalloweenPeriod()) return;
+
     const btn = document.createElement('button');
     btn.className = 'color-btn';
     btn.style.background = colorData.hex;
     btn.style.color = colorData.hex;
 
-    const titleIcon = colorData.currency === 'crystals' ? '💎' : '🪙';
+    const titleIcon = colorData.currency === 'crystals' ? '💎'
+                    : colorData.currency === 'candies' ? '🍬'
+                    : '🪙';
     if (colorData.shopOnly) btn.title = colorData.name + ' — купить в магазине за ' + colorData.price + ' ' + titleIcon;
     else btn.title = colorData.name + (colorData.free ? ' (бесплатно)' : ' — ' + colorData.price + ' ' + titleIcon);
 
@@ -3692,7 +3781,7 @@ function renderPalette() {
         renderPalette();
         updateBuyBlock();
         updateBoostIndicator();
-      } else if (colorData.shopOnly) {
+      } else if (colorData.shopOnly || colorData.halloween) {
         selectedShopColor = null;
         updateBuyBlock();
       } else {
@@ -3706,7 +3795,7 @@ function renderPalette() {
 }
 
 randomColorBtn.addEventListener('click', () => {
-  const available = COLOR_LIST.filter(c => c.free || isColorOwned(c.id));
+  const available = COLOR_LIST.filter(c => (c.free || isColorOwned(c.id)) && !c.halloween);
   const others = available.filter(c => !sameColor(c.hex, playerColor));
   const pick = others.length > 0 ? others[Math.floor(Math.random() * others.length)] : available[0];
   playerColor = pick.hex;
@@ -3730,7 +3819,7 @@ function updateBuyBlock() {
     return;
   }
   const colorData = COLOR_LIST.find(c => c.hex === selectedShopColor);
-  if (!colorData || colorData.shopOnly || colorData.free || isColorOwned(colorData.id)) {
+  if (!colorData || colorData.shopOnly || colorData.halloween || colorData.free || isColorOwned(colorData.id)) {
     buyBlockEl.classList.add('hidden');
     randomColorBtn.classList.remove('hidden');
     return;
@@ -3745,8 +3834,9 @@ function updateBuyBlock() {
   buyName.textContent = colorData.name;
 
   const isCrystals = colorData.currency === 'crystals';
-  const icon = isCrystals ? '💎' : '🪙';
-  const balance = isCrystals ? crystals : coins;
+  const isCandies = colorData.currency === 'candies';
+  const icon = isCrystals ? '💎' : isCandies ? '🍬' : '🪙';
+  const balance = isCrystals ? crystals : isCandies ? candies : coins;
   buyPrice.textContent = colorData.price + ' ' + icon;
 
   if (balance >= colorData.price) {
@@ -3754,14 +3844,16 @@ function updateBuyBlock() {
     buyBtn.textContent = 'Купить за ' + colorData.price + ' ' + icon;
   } else {
     buyBtn.disabled = true;
-    buyBtn.textContent = isCrystals ? 'Не хватает кристаллов' : 'Не хватает монет';
+    buyBtn.textContent = isCrystals ? 'Не хватает кристаллов'
+                       : isCandies ? 'Не хватает конфет'
+                       : 'Не хватает монет';
   }
 }
 
 buyBtn.addEventListener('click', () => {
   if (!selectedShopColor) return;
   const colorData = COLOR_LIST.find(c => c.hex === selectedShopColor);
-  if (!colorData || colorData.free || isColorOwned(colorData.id) || colorData.shopOnly) return;
+  if (!colorData || colorData.free || isColorOwned(colorData.id) || colorData.shopOnly || colorData.halloween) return;
 
   const isCrystals = colorData.currency === 'crystals';
   if (isCrystals) {
@@ -3792,7 +3884,8 @@ buyBtn.addEventListener('click', () => {
   selectedShopColor = null;
   updateBuyBlock();
   checkAchievements();
-});/* ============================================================
+});
+/* ============================================================
    ЕЖЕДНЕВНАЯ НАГРАДА
    ============================================================ */
 function checkDailyReward() {
@@ -3805,19 +3898,14 @@ function checkDailyReward() {
   let reward = isWeekend ? 20 : 10;
 
   // 🎃 Хэллоуин: +10 монет бонусом
-  if (isHalloweenPeriod()) {
-    reward += 10;
-  }
+  const halloween = isHalloweenPeriod();
+  if (halloween) reward += 10;
 
   rewardDayEl.textContent = isWeekend ? '🎉 Выходной день' : '📅 Будний день';
-  if (isHalloweenPeriod()) {
-    rewardDayEl.textContent = '🎃 Хэллоуинская неделя!';
-  }
+  if (halloween) rewardDayEl.textContent = '🎃 Хэллоуинская неделя!';
   rewardAmountEl.textContent = '+' + reward;
   rewardTextEl.textContent = isWeekend ? 'Двойная награда!' : 'Заходи каждый день!';
-  if (isHalloweenPeriod()) {
-    rewardTextEl.textContent = '🎃 +10 монет за Хэллоуин!';
-  }
+  if (halloween) rewardTextEl.textContent = '🎃 +10 монет за Хэллоуин!';
   dailyRewardEl.classList.remove('hidden');
 
   claimRewardBtn.onclick = () => {
@@ -3844,6 +3932,7 @@ function showMainMenu() {
   mainMenu.classList.remove('hidden');
   menuCoinsEl.textContent = coins;
   menuCrystalsEl.textContent = crystals;
+  if (menuCandiesEl) menuCandiesEl.textContent = candies;
   pauseBtn.classList.remove('visible');
   stopPreview();
 }
@@ -3857,6 +3946,7 @@ function showCustomScreen() {
   renderPalette();
   updateBuyBlock();
   checkElementalSkinAchievement();
+  checkPumpkinAchievement();
   checkAchievements();
 }
 
@@ -3872,7 +3962,9 @@ function showShopScreen() {
   updateWaterShopButton();
   updateAirShopButton();
   updateElementalPackButton();
+  updatePumpkinShopButton();
   checkElementalSkinAchievement();
+  checkPumpkinAchievement();
   checkAchievements();
 }
 
@@ -3896,6 +3988,7 @@ function goToMainMenu() {
   boostBtn.classList.remove('pressed');
   menuCoinsEl.textContent = coins;
   menuCrystalsEl.textContent = crystals;
+  if (menuCandiesEl) menuCandiesEl.textContent = candies;
   mainMenu.classList.remove('hidden');
   customScreen.classList.add('hidden');
   shopScreen.classList.add('hidden');
@@ -4004,6 +4097,7 @@ function exchangeCoinsToCrystals() {
   updateWaterShopButton();
   updateAirShopButton();
   updateElementalPackButton();
+  updatePumpkinShopButton();
   updateBuyBlock();
   checkAchievements();
 }
@@ -4050,6 +4144,66 @@ function updateEarthShopButton() {
   }
 }
 
+function updatePumpkinShopButton() {
+  if (!buyPumpkinBtn || !pumpkinShopItem || !halloweenShopTitle) return;
+
+  if (!isHalloweenPeriod()) {
+    halloweenShopTitle.style.display = 'none';
+    pumpkinShopItem.style.display = 'none';
+    return;
+  }
+
+  halloweenShopTitle.style.display = '';
+  pumpkinShopItem.style.display = '';
+
+  const colorData = COLOR_LIST.find(c => c.id === 'pumpkin');
+  if (!colorData) return;
+  const owned = isColorOwned('pumpkin');
+
+  if (owned) {
+    buyPumpkinBtn.disabled = true;
+    buyPumpkinBtn.textContent = '✅ Куплено';
+    pumpkinShopItem.style.opacity = '0.6';
+  } else if (candies >= colorData.price) {
+    buyPumpkinBtn.disabled = false;
+    buyPumpkinBtn.textContent = colorData.price + ' 🍬';
+    pumpkinShopItem.style.opacity = '1';
+  } else {
+    buyPumpkinBtn.disabled = true;
+    buyPumpkinBtn.textContent = 'Нужно ' + colorData.price + ' 🍬';
+    pumpkinShopItem.style.opacity = '0.7';
+  }
+}
+
+function buyPumpkinSkin() {
+  if (!isHalloweenPeriod()) return;
+  const colorData = COLOR_LIST.find(c => c.id === 'pumpkin');
+  if (!colorData || isColorOwned('pumpkin')) return;
+  if (candies < colorData.price) { updatePumpkinShopButton(); return; }
+
+  candies -= colorData.price;
+  localStorage.setItem('snakeio_candies', candies);
+  updateCandiesUI();
+
+  ownedColors.push('pumpkin');
+  saveOwnedColors();
+
+  playerColor = colorData.hex;
+  localStorage.setItem('snakeio_color', playerColor);
+  if (player) {
+    player.speed = isPremiumSkin(playerColor)
+      ? BASE_SPEED * PREMIUM_SPEED_BONUS
+      : BASE_SPEED;
+  }
+
+  updateBoostIndicator();
+  updatePumpkinShopButton();
+  renderPalette();
+  updateBuyBlock();
+  checkPumpkinAchievement();
+  checkAchievements();
+}
+
 function makeShopButton(buyBtnEl, shopItemEl, id) {
   if (!buyBtnEl) return null;
   const update = () => {
@@ -4094,6 +4248,7 @@ function makeShopButton(buyBtnEl, shopItemEl, id) {
     updateWaterShopButton();
     updateAirShopButton();
     updateElementalPackButton();
+    updatePumpkinShopButton();
     checkElementalSkinAchievement();
     checkAchievements();
     if (selectedShopColor === colorData.hex) selectedShopColor = null;
@@ -4135,6 +4290,7 @@ function buyRobotSkin() {
   updateWaterShopButton();
   updateAirShopButton();
   updateElementalPackButton();
+  updatePumpkinShopButton();
   checkAchievements();
   if (selectedShopColor === colorData.hex) selectedShopColor = null;
   updateBuyBlock();
@@ -4164,6 +4320,7 @@ function buyEarthSkin() {
   updateWaterShopButton();
   updateAirShopButton();
   updateElementalPackButton();
+  updatePumpkinShopButton();
   checkElementalSkinAchievement();
   checkAchievements();
   if (selectedShopColor === colorData.hex) selectedShopColor = null;
@@ -4172,6 +4329,7 @@ function buyEarthSkin() {
 
 if (buyRobotBtn) buyRobotBtn.addEventListener('click', buyRobotSkin);
 if (buyEarthBtn) buyEarthBtn.addEventListener('click', buyEarthSkin);
+if (buyPumpkinBtn) buyPumpkinBtn.addEventListener('click', buyPumpkinSkin);
 
 function updateElementalPackButton() {
   if (!buyElementalPackBtn) return;
@@ -4226,6 +4384,7 @@ function grantElementalPack() {
   updateFireShopButton();
   updateWaterShopButton();
   updateAirShopButton();
+  updatePumpkinShopButton();
   updateBuyBlock();
   checkElementalSkinAchievement();
   checkAchievements();
@@ -4359,6 +4518,7 @@ function initWorld() {
   killsEl.textContent = 0;
   coinsEl.textContent = coins;
   crystalsEl.textContent = crystals;
+  if (candiesEl) candiesEl.textContent = candies;
   gameoverEl.style.display = 'none';
   spectatorEl.style.display = 'none';
   popupsEl.innerHTML = '';
@@ -4619,7 +4779,8 @@ function moveSnake(snake, dt) {
     const isAirSkin = sameColor(snake.color, AIR_HEX);
     const isEarthSkin = sameColor(snake.color, EARTH_HEX);
     const isRobotSkin = sameColor(snake.color, ROBOT_HEX);
-    const hasInfiniteBoost = isFireSkin || isRobotSkin;
+    const isPumpkinSkin = sameColor(snake.color, PUMPKIN_HEX);
+    const hasInfiniteBoost = isFireSkin || isRobotSkin || isPumpkinSkin;
 
     if (snake.isBoosting) {
       if (hasInfiniteBoost) snake.boost = BOOST_MAX;
@@ -4644,6 +4805,9 @@ function moveSnake(snake, dt) {
       } else if (isRobotSkin) {
         emitParticles(snake.x - Math.cos(snake.angle) * 18, snake.y - Math.sin(snake.angle) * 18,
           Math.random() < 0.5 ? 'rgb(180,220,255)' : 'rgb(120,140,255)', 3, 0.9);
+      } else if (isPumpkinSkin) {
+        emitParticles(snake.x - Math.cos(snake.angle) * 18, snake.y - Math.sin(snake.angle) * 18,
+          Math.random() < 0.5 ? 'rgb(255,180,60)' : 'rgb(255,120,20)', 2, 0.7);
       } else {
         if (Math.random() < 0.5) {
           emitParticles(snake.x - Math.cos(snake.angle) * 15, snake.y - Math.sin(snake.angle) * 15,
@@ -4929,7 +5093,8 @@ function physicsStep() {
 
     const isFireSkin = sameColor(player.color, FIRE_HEX);
     const isRobotSkin = sameColor(player.color, ROBOT_HEX);
-    const hasInfiniteBoost = isFireSkin || isRobotSkin;
+    const isPumpkinSkin = sameColor(player.color, PUMPKIN_HEX);
+    const hasInfiniteBoost = isFireSkin || isRobotSkin || isPumpkinSkin;
     const canBoost = hasInfiniteBoost || player.boost >= BOOST_MIN_TO_START;
 
     if (keysPressed.boost && !player.isBoosting && canBoost) player.isBoosting = true;
@@ -5073,6 +5238,326 @@ function respawnPlayer() {
 function cancelRespawn() {
   if (respawnRAF) { cancelAnimationFrame(respawnRAF); respawnRAF = null; }
 }
+/* ============================================================
+   🎃 PUMPKIN SNAKE
+   ============================================================ */
+function drawPumpkinSnake(snake) {
+  const total = snake.segments.length;
+  const now = performance.now();
+  const boostGlow = (snake.isPlayer && snake.isBoosting && snake.boost > 0) ? 1.6 : 1;
+
+  const ORANGE_XL    = '#ffd9a0';
+  const ORANGE_LIGHT = '#ffb347';
+  const ORANGE_MID   = '#ff8c1a';
+  const ORANGE       = '#f26a00';
+  const ORANGE_DARK  = '#a33000';
+  const ORANGE_SHADOW= 'rgba(60, 15, 0, 0.85)';
+  const BLACK        = '#140600';
+  const GREEN        = '#4a8a24';
+  const GREEN_DARK   = '#1f3d08';
+  const GREEN_LIGHT  = '#7bc043';
+
+  // Аура при бусте
+  if (snake.isPlayer && snake.isBoosting) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const pulse = 1 + Math.sin(now / 100) * 0.15;
+    const grad = ctx.createRadialGradient(snake.x, snake.y, 0, snake.x, snake.y, 45 * pulse);
+    grad.addColorStop(0, 'rgba(255, 140, 30, 0.5)');
+    grad.addColorStop(0.6, 'rgba(255, 90, 0, 0.2)');
+    grad.addColorStop(1, 'rgba(200, 50, 0, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(snake.x, snake.y, 45 * pulse, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Тело
+  for (let i = total - 1; i >= 1; i--) {
+    const p = snake.segments[i];
+    if (!p) continue;
+    const t = i / Math.max(1, total - 1);
+    const radius = BODY_RADIUS * (1 - t * 0.45) + Math.sin(snake.pulse + i * 0.4) * 0.6;
+
+    ctx.save();
+    ctx.shadowColor = ORANGE;
+    if (graphicsQuality === 'high') {
+      ctx.shadowBlur = (i < 3 ? 18 : 7) * boostGlow;
+    } else {
+      ctx.shadowBlur = i < 3 ? 9 : 0;
+    }
+
+    const grad = ctx.createRadialGradient(
+      p.x - radius * 0.45, p.y - radius * 0.5, radius * 0.05,
+      p.x, p.y, radius * 1.2
+    );
+    grad.addColorStop(0, ORANGE_XL);
+    grad.addColorStop(0.25, ORANGE_LIGHT);
+    grad.addColorStop(0.55, ORANGE_MID);
+    grad.addColorStop(0.85, ORANGE);
+    grad.addColorStop(1, ORANGE_DARK);
+
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Контур
+    ctx.strokeStyle = ORANGE_SHADOW;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Верхний блик
+    ctx.fillStyle = 'rgba(255, 240, 210, 0.5)';
+    ctx.beginPath();
+    ctx.ellipse(
+      p.x - radius * 0.35, p.y - radius * 0.45,
+      radius * 0.4, radius * 0.2,
+      -0.5, 0, Math.PI * 2
+    );
+    ctx.fill();
+
+    // Нижний отражённый свет
+    ctx.fillStyle = 'rgba(255, 180, 100, 0.25)';
+    ctx.beginPath();
+    ctx.ellipse(
+      p.x + radius * 0.15, p.y + radius * 0.5,
+      radius * 0.35, radius * 0.12,
+      0.3, 0, Math.PI * 2
+    );
+    ctx.fill();
+
+    // Чёрные полоски на каждом 2-м
+    if (i % 2 === 0) {
+      ctx.strokeStyle = BLACK;
+      ctx.lineWidth = 2.2;
+      ctx.lineCap = 'round';
+
+      ctx.beginPath();
+      ctx.moveTo(p.x - radius * 0.8, p.y - radius * 0.4);
+      ctx.quadraticCurveTo(
+        p.x, p.y - radius * 0.15,
+        p.x + radius * 0.8, p.y - radius * 0.4
+      );
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(p.x - radius * 0.8, p.y + radius * 0.4);
+      ctx.quadraticCurveTo(
+        p.x, p.y + radius * 0.15,
+        p.x + radius * 0.8, p.y + radius * 0.4
+      );
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
+  // Голова
+  const head = snake.segments[0];
+  const next = snake.segments[1];
+  if (!head) return;
+  const angle = next ? Math.atan2(head.y - next.y, head.x - next.x) : snake.angle;
+  const s = HEAD_RADIUS;
+
+  ctx.save();
+  ctx.translate(head.x, head.y);
+  ctx.rotate(angle);
+
+  // Ореол тепла
+  const haloGrad = ctx.createRadialGradient(0, 0, s * 0.8, 0, 0, s * 2.4);
+  haloGrad.addColorStop(0, 'rgba(255, 140, 30, 0.35)');
+  haloGrad.addColorStop(0.5, 'rgba(255, 90, 0, 0.12)');
+  haloGrad.addColorStop(1, 'rgba(255, 60, 0, 0)');
+  ctx.fillStyle = haloGrad;
+  ctx.beginPath();
+  ctx.arc(0, 0, s * 2.4, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Основной круг головы
+  ctx.shadowColor = ORANGE;
+  ctx.shadowBlur = 32 * boostGlow;
+
+  const headGrad = ctx.createRadialGradient(
+    -s * 0.4, -s * 0.45, s * 0.05,
+    0, 0, s * 1.2
+  );
+  headGrad.addColorStop(0, ORANGE_XL);
+  headGrad.addColorStop(0.25, ORANGE_LIGHT);
+  headGrad.addColorStop(0.55, ORANGE_MID);
+  headGrad.addColorStop(0.85, ORANGE);
+  headGrad.addColorStop(1, ORANGE_DARK);
+
+  ctx.fillStyle = headGrad;
+  ctx.beginPath();
+  ctx.arc(0, 0, s, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Контур
+  ctx.strokeStyle = ORANGE_SHADOW;
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.arc(0, 0, s, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Большой блик
+  ctx.fillStyle = 'rgba(255, 250, 235, 0.7)';
+  ctx.beginPath();
+  ctx.ellipse(
+    -s * 0.4, -s * 0.5,
+    s * 0.45, s * 0.22,
+    -0.55, 0, Math.PI * 2
+  );
+  ctx.fill();
+
+  // Маленький блик
+  ctx.fillStyle = 'rgba(255, 245, 220, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(
+    -s * 0.15, -s * 0.7,
+    s * 0.15, s * 0.08,
+    -0.55, 0, Math.PI * 2
+  );
+  ctx.fill();
+
+  // Дольки тыквы
+  ctx.strokeStyle = BLACK;
+  ctx.lineWidth = 2.6;
+  ctx.lineCap = 'round';
+
+  ctx.beginPath();
+  ctx.moveTo(-s * 0.9, -s * 0.5);
+  ctx.quadraticCurveTo(-s * 0.15, -s * 0.22, s * 0.1, -s * 0.6);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(-s * 0.9, s * 0.5);
+  ctx.quadraticCurveTo(-s * 0.15, s * 0.22, s * 0.1, s * 0.6);
+  ctx.stroke();
+
+  // Глаза — злые треугольники со скруглением
+  ctx.fillStyle = BLACK;
+
+  ctx.beginPath();
+  ctx.moveTo(s * 0.02, -s * 0.62);
+  ctx.lineTo(s * 0.55, -s * 0.36);
+  ctx.quadraticCurveTo(s * 0.6, -s * 0.32, s * 0.55, -s * 0.28);
+  ctx.lineTo(s * 0.02, -s * 0.02);
+  ctx.quadraticCurveTo(-s * 0.05, 0, s * 0.02, -s * 0.62);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(s * 0.02, s * 0.62);
+  ctx.lineTo(s * 0.55, s * 0.36);
+  ctx.quadraticCurveTo(s * 0.6, s * 0.32, s * 0.55, s * 0.28);
+  ctx.lineTo(s * 0.02, s * 0.02);
+  ctx.quadraticCurveTo(-s * 0.05, 0, s * 0.02, s * 0.62);
+  ctx.closePath();
+  ctx.fill();
+
+  // Огоньки в глазах
+  const eyePulse = 0.6 + Math.sin(now / 200) * 0.4;
+  ctx.shadowColor = '#ffcc44';
+  ctx.shadowBlur = 14 * eyePulse;
+  ctx.fillStyle = '#ffee66';
+  ctx.beginPath();
+  ctx.arc(s * 0.24, -s * 0.34, 2.6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(s * 0.24, s * 0.34, 2.6, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.shadowBlur = 6;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(s * 0.24, -s * 0.34, 1.1, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(s * 0.24, s * 0.34, 1.1, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.shadowBlur = 0;
+
+  // Рот + зуб
+  ctx.strokeStyle = BLACK;
+  ctx.lineWidth = 2.4;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+
+  ctx.beginPath();
+  ctx.moveTo(s * 0.7, -s * 0.22);
+  ctx.lineTo(s * 0.52, 0);
+  ctx.lineTo(s * 0.7, s * 0.22);
+  ctx.stroke();
+
+  ctx.fillStyle = BLACK;
+  ctx.beginPath();
+  ctx.moveTo(s * 0.6, -s * 0.12);
+  ctx.lineTo(s * 0.5, -s * 0.02);
+  ctx.lineTo(s * 0.68, -s * 0.02);
+  ctx.closePath();
+  ctx.fill();
+
+  // Хвостик закрученный
+  ctx.fillStyle = GREEN;
+  ctx.beginPath();
+  ctx.moveTo(-s * 0.05, -s * 0.98);
+  ctx.quadraticCurveTo(s * 0.1, -s * 1.5, s * 0.45, -s * 1.4);
+  ctx.quadraticCurveTo(s * 0.55, -s * 1.25, s * 0.35, -s * 1.2);
+  ctx.quadraticCurveTo(s * 0.3, -s * 1.05, s * 0.15, -s * 0.9);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = GREEN_DARK;
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(s * 0.05, -s * 1.0);
+  ctx.quadraticCurveTo(s * 0.25, -s * 1.3, s * 0.4, -s * 1.3);
+  ctx.stroke();
+
+  // Листик
+  ctx.fillStyle = GREEN_LIGHT;
+  ctx.beginPath();
+  ctx.moveTo(-s * 0.1, -s * 0.9);
+  ctx.quadraticCurveTo(-s * 0.85, -s * 1.15, -s * 0.95, -s * 0.75);
+  ctx.quadraticCurveTo(-s * 0.75, -s * 0.65, -s * 0.55, -s * 0.78);
+  ctx.quadraticCurveTo(-s * 0.3, -s * 0.85, -s * 0.1, -s * 0.9);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(30, 70, 10, 0.35)';
+  ctx.beginPath();
+  ctx.moveTo(-s * 0.1, -s * 0.9);
+  ctx.quadraticCurveTo(-s * 0.5, -s * 1.0, -s * 0.85, -s * 0.95);
+  ctx.quadraticCurveTo(-s * 0.5, -s * 0.85, -s * 0.1, -s * 0.9);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = GREEN_DARK;
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(-s * 0.1, -s * 0.88);
+  ctx.quadraticCurveTo(-s * 0.5, -s * 0.95, -s * 0.88, -s * 0.82);
+  ctx.stroke();
+
+  ctx.lineWidth = 0.8;
+  ctx.beginPath();
+  ctx.moveTo(-s * 0.4, -s * 0.92);
+  ctx.lineTo(-s * 0.45, -s * 1.05);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(-s * 0.65, -s * 0.9);
+  ctx.lineTo(-s * 0.72, -s * 1.02);
+  ctx.stroke();
+
+  ctx.restore();
+}
 
 
 /* ============================================================
@@ -5097,9 +5582,14 @@ function drawSnake(snake) {
 
   const color = snake.color;
   const isRobot = sameColor(color, ROBOT_HEX);
+  const isPumpkin = sameColor(color, PUMPKIN_HEX);
 
   if (isRobot) {
     drawRobotSnake(snake);
+    return;
+  }
+  if (isPumpkin) {
+    drawPumpkinSnake(snake);
     return;
   }
 
@@ -5732,6 +6222,7 @@ updateFireShopButton();
 updateWaterShopButton();
 updateAirShopButton();
 updateElementalPackButton();
+updatePumpkinShopButton();
 initWorld();
 gameLoopRunning = true;
 requestAnimationFrame(gameLoop);
@@ -5740,6 +6231,7 @@ applyHalloweenMode();
 updateCandiesUI();
 checkAchievements();
 checkElementalSkinAchievement();
+checkPumpkinAchievement();
 updateAchBadge();
 
 if (!playerName && nameScreen) {
