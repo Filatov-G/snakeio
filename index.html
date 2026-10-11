@@ -978,60 +978,115 @@
     }
   }
 
-  .volume-slider {
+  /* ===== 🎚️ ПОЛЗУНОК ГРОМКОСТИ ===== */
+  .volume-range-wrap {
     position: relative;
-    width: 100%;
-    height: 44px;
     display: flex;
     align-items: center;
+    gap: 12px;
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
     background: rgba(255,255,255,0.04);
     border: 2px solid rgba(255,255,255,0.1);
     border-radius: 14px;
-    overflow: hidden;
     user-select: none;
   }
 
-  .volume-slider-track {
+  .volume-range-track {
     position: absolute;
-    inset: 0;
-    display: flex;
+    left: 14px;
+    right: 74px;
+    top: 50%;
+    height: 6px;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+    pointer-events: none;
   }
 
-  .volume-slider-stop {
+  .volume-range-fill {
+    height: 100%;
+    width: 50%;
+    background: linear-gradient(90deg, #00ff66, #00cc55);
+    border-radius: 3px;
+    box-shadow: 0 0 10px rgba(0, 255, 100, 0.6);
+    transition: width 0.15s ease;
+  }
+
+  .volume-range {
+    -webkit-appearance: none;
+    appearance: none;
     flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 900;
-    color: #667788;
-    cursor: pointer;
-    transition: color 0.2s, background 0.2s;
-    letter-spacing: 0.5px;
-    touch-action: manipulation;
-    pointer-events: auto;
+    width: 100%;
+    height: 30px;
     background: transparent;
-    border: none;
+    outline: none;
+    cursor: pointer;
     position: relative;
     z-index: 2;
+    padding: 0;
+    margin: 0;
+    touch-action: manipulation;
   }
 
-  .volume-slider-stop:hover { color: #fff; }
-
-  .volume-slider-stop.active {
-    color: #0f0;
-    background: linear-gradient(135deg, rgba(0, 255, 120, 0.2), rgba(0, 170, 80, 0.15));
-    box-shadow: inset 0 0 20px rgba(0, 255, 120, 0.3);
+  /* Ползунок (thumb) */
+  .volume-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ffffff 0%, #00ff88 45%, #00aa55 100%);
+    box-shadow:
+      0 0 12px rgba(0, 255, 120, 0.9),
+      0 2px 6px rgba(0, 0, 0, 0.5);
+    border: 2px solid #0d1117;
+    cursor: grab;
+    transition: transform 0.15s;
+  }
+  .volume-range::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+  }
+  .volume-range::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    transform: scale(1.05);
   }
 
-  .volume-slider-stop.active::before {
-    content: '';
+  /* Firefox */
+  .volume-range::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ffffff 0%, #00ff88 45%, #00aa55 100%);
+    box-shadow:
+      0 0 12px rgba(0, 255, 120, 0.9),
+      0 2px 6px rgba(0, 0, 0, 0.5);
+    border: 2px solid #0d1117;
+    cursor: grab;
+  }
+
+  .volume-range::-moz-range-track {
+    background: transparent;
+    height: 6px;
+  }
+
+  /* Значение справа */
+  .volume-range-value {
     position: absolute;
-    inset: 0;
-    border-radius: 10px;
-    border: 2px solid rgba(0, 255, 120, 0.6);
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    font-weight: 900;
+    color: #0f0;
+    text-shadow: 0 0 8px rgba(0, 255, 100, 0.7);
+    min-width: 46px;
+    text-align: right;
     pointer-events: none;
+    z-index: 3;
+    font-family: 'Segoe UI', Arial, sans-serif;
   }
 
   #settingsBtn {
@@ -2181,12 +2236,20 @@
 
       <div class="settings-section">
         <div class="settings-label">🔊 Громкость</div>
-        <div class="volume-slider" id="volumeSlider">
-          <div class="volume-slider-track">
-            <button class="volume-slider-stop active" data-volume="high">100%</button>
-            <button class="volume-slider-stop" data-volume="medium">50%</button>
-            <button class="volume-slider-stop" data-volume="off">0%</button>
+        <div class="volume-range-wrap">
+          <div class="volume-range-track">
+            <div class="volume-range-fill" id="volumeFill"></div>
           </div>
+          <input
+            type="range"
+            id="volumeRange"
+            class="volume-range"
+            min="0"
+            max="100"
+            step="25"
+            value="50"
+          >
+          <span class="volume-range-value" id="volumeValue">50%</span>
         </div>
       </div>
 
@@ -2930,9 +2993,12 @@ if (menuCandiesEl) menuCandiesEl.textContent = candies;
    НАСТРОЙКИ
    ============================================================ */
 let graphicsQuality = localStorage.getItem('snakeio_graphics') || 'high';
-let volumeLevel = localStorage.getItem('snakeio_volume') || 'high';
 
-const VOLUME_VALUES = { high: 0.4, medium: 0.2, off: 0 };
+// Громкость — 0 / 25 / 50 / 75 / 100
+let volumeValue = parseInt(localStorage.getItem('snakeio_volume') || '50', 10);
+if (isNaN(volumeValue)) volumeValue = 50;
+volumeValue = Math.round(volumeValue / 25) * 25;
+volumeValue = Math.max(0, Math.min(100, volumeValue));
 
 function applyGraphicsQuality() {
   const dpr = graphicsQuality === 'medium'
@@ -2954,16 +3020,21 @@ function applyGraphicsQuality() {
 
 function applyVolume() {
   if (!bgmEl) return;
-  bgmEl.volume = VOLUME_VALUES[volumeLevel] !== undefined ? VOLUME_VALUES[volumeLevel] : 0.4;
+  // Максимум 40% от системного — чтобы не глушило
+  bgmEl.volume = (volumeValue / 100) * 0.4;
 }
 
 function updateSettingsUI() {
   document.querySelectorAll('[data-graphics]').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-graphics') === graphicsQuality);
   });
-  document.querySelectorAll('[data-volume]').forEach(btn => {
-    btn.classList.toggle('active', btn.getAttribute('data-volume') === volumeLevel);
-  });
+
+  const range = document.getElementById('volumeRange');
+  const fill = document.getElementById('volumeFill');
+  const val = document.getElementById('volumeValue');
+  if (range) range.value = volumeValue;
+  if (fill) fill.style.width = volumeValue + '%';
+  if (val) val.textContent = volumeValue + '%';
 }
 
 function setGraphicsQuality(q) {
@@ -2974,8 +3045,12 @@ function setGraphicsQuality(q) {
 }
 
 function setVolumeLevel(v) {
-  volumeLevel = v;
-  localStorage.setItem('snakeio_volume', v);
+  let val = parseInt(v, 10) || 0;
+  // 🎚️ Прилипаем к 0/25/50/75/100
+  val = Math.round(val / 25) * 25;
+  val = Math.max(0, Math.min(100, val));
+  volumeValue = val;
+  localStorage.setItem('snakeio_volume', String(volumeValue));
   applyVolume();
   updateSettingsUI();
 }
@@ -3000,9 +3075,12 @@ if (settingsCloseBtn) settingsCloseBtn.addEventListener('click', closeSettings);
 document.querySelectorAll('[data-graphics]').forEach(btn => {
   btn.addEventListener('click', () => setGraphicsQuality(btn.getAttribute('data-graphics')));
 });
-document.querySelectorAll('[data-volume]').forEach(btn => {
-  btn.addEventListener('click', () => setVolumeLevel(btn.getAttribute('data-volume')));
-});
+// 🎚️ Ползунок громкости
+const volumeRangeEl = document.getElementById('volumeRange');
+if (volumeRangeEl) {
+  volumeRangeEl.addEventListener('input', (e) => setVolumeLevel(e.target.value));
+  volumeRangeEl.addEventListener('change', (e) => setVolumeLevel(e.target.value));
+}
 
 
 /* ============================================================
