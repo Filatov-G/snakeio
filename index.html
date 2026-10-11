@@ -1724,6 +1724,40 @@
     0%, 100% { transform: rotate(-8deg); }
     50% { transform: rotate(8deg); }
   }
+  /* 🦇 Летучие мыши — летают по краям */
+  .hw-bat {
+    position: absolute;
+    font-size: 30px;
+    filter: drop-shadow(0 0 8px rgba(120, 60, 180, 0.9));
+    animation: hwBatFly 5s ease-in-out infinite;
+    user-select: none;
+    opacity: 0.9;
+    pointer-events: none;
+  }
+  .hw-bat-l1 { left: 20px;  top: 20%; font-size: 26px; animation-delay: 0.0s; }
+  .hw-bat-l2 { left: 50px;  top: 45%; font-size: 34px; animation-delay: 1.2s; }
+  .hw-bat-l3 { left: 15px;  top: 70%; font-size: 22px; animation-delay: 2.4s; }
+  .hw-bat-r1 { right: 20px; top: 25%; font-size: 30px; animation-delay: 0.6s; }
+  .hw-bat-r2 { right: 55px; top: 55%; font-size: 24px; animation-delay: 1.8s; }
+  .hw-bat-r3 { right: 15px; top: 75%; font-size: 32px; animation-delay: 3.0s; }
+
+  @keyframes hwBatFly {
+    0%   { transform: translate(0, 0) rotate(-6deg); }
+    25%  { transform: translate(12px, -14px) rotate(6deg); }
+    50%  { transform: translate(-6px, -22px) rotate(-4deg); }
+    75%  { transform: translate(10px, -10px) rotate(8deg); }
+    100% { transform: translate(0, 0) rotate(-6deg); }
+  }
+  .hw-bat-r1, .hw-bat-r2, .hw-bat-r3 {
+    animation-name: hwBatFlyMirror;
+  }
+  @keyframes hwBatFlyMirror {
+    0%   { transform: scaleX(-1) translate(0, 0) rotate(-6deg); }
+    25%  { transform: scaleX(-1) translate(12px, -14px) rotate(6deg); }
+    50%  { transform: scaleX(-1) translate(-6px, -22px) rotate(-4deg); }
+    75%  { transform: scaleX(-1) translate(10px, -10px) rotate(8deg); }
+    100% { transform: scaleX(-1) translate(0, 0) rotate(-6deg); }
+  }
  
   /* 🕷️ ОСОБЫЙ ПАУК — ползёт по паутине (только в меню) */
   .hw-special-spider {
@@ -1766,7 +1800,8 @@
     transition: opacity 0.3s;
   }
   body.in-menu .hw-web,
-  body.in-menu .hw-pumpkin {
+  body.in-menu .hw-pumpkin,
+  body.in-menu .hw-bat {
     opacity: 1;
   }
 
@@ -1786,17 +1821,28 @@
 
   .hw-pumpkin {
     position: absolute;
-    bottom: 16px;
-    font-size: 42px;
+    bottom: 10px;
     filter: drop-shadow(0 0 12px rgba(255, 140, 0, 0.8));
     animation: hwPumpkinFloat 3s ease-in-out infinite;
+    user-select: none;
   }
-  .hw-pumpkin-bl { left: 16px; }
-  .hw-pumpkin-br { right: 16px; animation-delay: 1.5s; }
+  .hw-pumpkin-b1 { left: 8px;  font-size: 34px; animation-delay: 0.0s; bottom: 8px; }
+  .hw-pumpkin-b2 { left: 70px; font-size: 26px; animation-delay: 0.8s; bottom: 14px; opacity: 0.85; }
+  .hw-pumpkin-b3 { left: 50%;  font-size: 48px; animation-delay: 1.4s; bottom: 6px; transform: translateX(-50%); }
+  .hw-pumpkin-b4 { right: 70px;font-size: 28px; animation-delay: 2.0s; bottom: 12px; opacity: 0.9; }
+  .hw-pumpkin-b5 { right: 8px;  font-size: 38px; animation-delay: 2.6s; bottom: 8px; }
 
   @keyframes hwPumpkinFloat {
     0%, 100% { transform: translateY(0) rotate(-3deg); }
     50% { transform: translateY(-6px) rotate(3deg); }
+  }
+  /* Для центральной тыквы сохраняем смещение по X */
+  .hw-pumpkin-b3 {
+    animation-name: hwPumpkinFloatCenter;
+  }
+  @keyframes hwPumpkinFloatCenter {
+    0%, 100% { transform: translateX(-50%) translateY(0) rotate(-3deg); }
+    50% { transform: translateX(-50%) translateY(-6px) rotate(3deg); }
   }
 
   body.halloween-mode.in-menu {
@@ -1822,8 +1868,17 @@
     <div class="hw-web hw-web-tr"></div>
     <div class="hw-web hw-web-bl"></div>
     <div class="hw-web hw-web-br"></div>
-    <div class="hw-pumpkin hw-pumpkin-bl">🎃</div>
-    <div class="hw-pumpkin hw-pumpkin-br">🎃</div>
+    <div class="hw-pumpkin hw-pumpkin-b1">🎃</div>
+    <div class="hw-pumpkin hw-pumpkin-b2">🎃</div>
+    <div class="hw-pumpkin hw-pumpkin-b3">🎃</div>
+    <div class="hw-pumpkin hw-pumpkin-b4">🎃</div>
+    <div class="hw-pumpkin hw-pumpkin-b5">🎃</div>
+    <div class="hw-bat hw-bat-l1">🦇</div>
+    <div class="hw-bat hw-bat-l2">🦇</div>
+    <div class="hw-bat hw-bat-l3">🦇</div>
+    <div class="hw-bat hw-bat-r1">🦇</div>
+    <div class="hw-bat hw-bat-r2">🦇</div>
+    <div class="hw-bat hw-bat-r3">🦇</div>
     <div class="hw-spider hw-spider-1">🕷️</div>
     <div class="hw-spider hw-spider-2">🕷️</div>
     <div class="hw-spider hw-spider-3">🕷️</div>
