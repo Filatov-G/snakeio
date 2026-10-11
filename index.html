@@ -4847,6 +4847,9 @@ function initWorld() {
       tries++;
     } while (!ok && tries < 100);
     const blackBot = makeSnake(bx, by, rand(0, Math.PI * 2), '#111111', false);
+    blackBot.isBlackBot = true;
+    // +5% к скорости
+    blackBot.speed = BASE_SPEED * 0.92 * 1.05;
     computeSegments(blackBot);
     bots.push(blackBot);
   }
@@ -5368,12 +5371,26 @@ function respawnBot() {
     }
   } while (!ok && tries++ < 100);
 
-  const usedColors = bots.filter(b => b.alive).map(b => b.color);
-  const color = pickBotColor(usedColors);
+  const idx = bots.findIndex(b => !b.alive);
+  const wasBlackBot = idx >= 0 && bots[idx] && bots[idx].isBlackBot;
+
+  // 🎃 Если убитый бот был чёрным — возрождаем чёрного
+  let color, isBlack = false;
+  if (wasBlackBot && isHalloweenPeriod()) {
+    color = '#111111';
+    isBlack = true;
+  } else {
+    const usedColors = bots.filter(b => b.alive).map(b => b.color);
+    color = pickBotColor(usedColors);
+  }
+
   const angle = rand(0, Math.PI * 2);
   const bot = makeSnake(bx, by, angle, color, false);
+  if (isBlack) {
+    bot.isBlackBot = true;
+    bot.speed = BASE_SPEED * 0.92 * 1.05;
+  }
   computeSegments(bot);
-  const idx = bots.findIndex(b => !b.alive);
   if (idx >= 0) bots[idx] = bot;
   else bots.push(bot);
 }
@@ -6326,11 +6343,26 @@ function drawSnake(snake) {
   const eye2x = snake.x + Math.cos(dir) * forwardOffset - perpX * eyeOffset;
   const eye2y = snake.y + Math.sin(dir) * forwardOffset - perpY * eyeOffset;
 
-  ctx.fillStyle = '#fff';
+  // 🎃 Особые глаза для чёрного бота — красные
+  const isBlackBot = snake.isBlackBot;
+
+  ctx.fillStyle = isBlackBot ? '#ff2222' : '#fff';
   ctx.beginPath();
   ctx.arc(eye1x, eye1y, HEAD_RADIUS * 0.30, 0, Math.PI * 2);
   ctx.arc(eye2x, eye2y, HEAD_RADIUS * 0.30, 0, Math.PI * 2);
   ctx.fill();
+
+  // Свечение для красных глаз
+  if (isBlackBot) {
+    ctx.save();
+    ctx.shadowColor = '#ff2222';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(eye1x, eye1y, HEAD_RADIUS * 0.30, 0, Math.PI * 2);
+    ctx.arc(eye2x, eye2y, HEAD_RADIUS * 0.30, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
 
   ctx.fillStyle = '#111';
   const pupilShift = HEAD_RADIUS * 0.10;
