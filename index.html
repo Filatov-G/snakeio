@@ -1724,6 +1724,38 @@
     0%, 100% { transform: rotate(-8deg); }
     50% { transform: rotate(8deg); }
   }
+ 
+  /* 🕷️ ОСОБЫЙ ПАУК — ползёт по паутине */
+  .hw-special-spider {
+    position: absolute;
+    font-size: 40px;
+    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 1)) drop-shadow(0 0 20px rgba(180, 100, 255, 0.8));
+    pointer-events: none;
+    z-index: 25;
+    opacity: 0;
+    transition: opacity 0.3s;
+    transform-origin: center center;
+    top: 0;
+    left: 0;
+  }
+  .hw-special-spider.visible {
+    opacity: 1;
+  }
+
+  /* Нитка, на которой спускается паук */
+  .hw-special-thread {
+    position: absolute;
+    width: 1px;
+    height: 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.7), rgba(255,255,255,0.2));
+    pointer-events: none;
+    z-index: 24;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .hw-special-thread.visible {
+    opacity: 1;
+  }
 
   .hw-web, .hw-pumpkin {
     opacity: 0;
@@ -1791,6 +1823,9 @@
     <div class="hw-spider hw-spider-1">🕷️</div>
     <div class="hw-spider hw-spider-2">🕷️</div>
     <div class="hw-spider hw-spider-3">🕷️</div>
+    <!-- 🕷️ ОСОБЫЙ ПАУК — ползёт по паутине -->
+    <div id="specialSpider" class="hw-special-spider">🕷️</div>
+    <div id="specialSpiderThread" class="hw-special-thread"></div>
   </div>
   <audio id="bgm" src="Фоновая_музыка_Змеи.mp3" loop preload="auto"></audio>
   <button id="pauseBtn" title="Пауза">⏸</button>
@@ -2266,7 +2301,7 @@ function isHalloweenPeriod() {
   const now = new Date();
   const month = now.getMonth();
   const day = now.getDate();
-  return month === 9 && day >= 12 && day <= 31;
+  return month === 9 && day >= 1 && day <= 31;
 }
 
 function applyHalloweenMode() {
@@ -2277,11 +2312,15 @@ function applyHalloweenMode() {
     document.body.classList.add('halloween-mode');
     updateHalloweenMenuState();
     if (menuCandiesWrap) menuCandiesWrap.classList.remove('hidden');
+    // 🕷️ Запускаем особого паука
+    setTimeout(startSpecialSpider, 500);
   } else {
     decor.classList.add('hidden');
     document.body.classList.remove('halloween-mode');
     document.body.classList.remove('in-menu');
     if (menuCandiesWrap) menuCandiesWrap.classList.add('hidden');
+    // 🕷️ Останавливаем паука
+    stopSpecialSpider();
   }
 }
 
@@ -2309,6 +2348,160 @@ function updateHalloweenMenuState() {
 }
 
 setInterval(updateHalloweenMenuState, 300);
+
+
+/* ============================================================
+   🕷️ ОСОБЫЙ ПАУК — ползёт по паутине
+   ============================================================ */
+let specialSpiderRAF = null;
+let specialSpiderTimeout = null;
+
+function startSpecialSpider() {
+  const spider = document.getElementById('specialSpider');
+  const thread = document.getElementById('specialSpiderThread');
+  if (!spider || !thread) return;
+
+  if (specialSpiderRAF) { cancelAnimationFrame(specialSpiderRAF); specialSpiderRAF = null; }
+  if (specialSpiderTimeout) { clearTimeout(specialSpiderTimeout); specialSpiderTimeout = null; }
+
+  const SPIDER_SIZE = 40;
+  const R = 125;
+
+  const getW = () => window.innerWidth;
+  const getH = () => window.innerHeight;
+
+  // Ползёт по кольцу паутины
+  function crawlOnWeb(cx, cy, startAngle, endAngle, duration, callback) {
+    spider.classList.add('visible');
+    thread.classList.remove('visible');
+
+    const startTime = performance.now();
+
+    function step() {
+      const now = performance.now();
+      const t = Math.min(1, (now - startTime) / duration);
+      const angle = startAngle + (endAngle - startAngle) * t;
+
+      const x = cx + Math.cos(angle) * R;
+      const y = cy + Math.sin(angle) * R;
+
+      spider.style.left = (x - SPIDER_SIZE / 2) + 'px';
+      spider.style.top = (y - SPIDER_SIZE / 2) + 'px';
+      spider.style.transform = `rotate(${angle + Math.PI / 2}rad)`;
+
+      if (t < 1) {
+        specialSpiderRAF = requestAnimationFrame(step);
+      } else {
+        specialSpiderRAF = null;
+        if (callback) callback();
+      }
+    }
+    step();
+  }
+
+  // Спускается с потолка на нитке
+  function crawlDownOnThread(callback) {
+    spider.classList.add('visible');
+    thread.classList.add('visible');
+
+    const startX = getW() / 2;
+    const endY = getH() * 0.5;
+    const startTime = performance.now();
+    const duration = 3000;
+
+    thread.style.left = startX + 'px';
+    thread.style.top = '0px';
+    thread.style.height = '0px';
+    spider.style.transform = 'rotate(0rad)';
+
+    function stepDown() {
+      const now = performance.now();
+      const t = Math.min(1, (now - startTime) / duration);
+      const currentY = endY * t;
+
+      thread.style.height = currentY + 'px';
+      spider.style.left = (startX - SPIDER_SIZE / 2) + 'px';
+      spider.style.top = (currentY - SPIDER_SIZE / 2) + 'px';
+
+      if (t < 1) {
+        specialSpiderRAF = requestAnimationFrame(stepDown);
+      } else {
+        specialSpiderRAF = null;
+        specialSpiderTimeout = setTimeout(() => {
+          crawlUpOnThread(callback);
+        }, 2000);
+      }
+    }
+    stepDown();
+  }
+
+  // Уползает вверх по нитке
+  function crawlUpOnThread(callback) {
+    const startX = getW() / 2;
+    const startY = getH() * 0.5;
+    const endY = 0;
+    const startTime = performance.now();
+    const duration = 3000;
+
+    function stepUp() {
+      const now = performance.now();
+      const t = Math.min(1, (now - startTime) / duration);
+      const currentY = startY + (endY - startY) * t;
+
+      thread.style.height = Math.max(0, startY * (1 - t)) + 'px';
+      spider.style.left = (startX - SPIDER_SIZE / 2) + 'px';
+      spider.style.top = (currentY - SPIDER_SIZE / 2) + 'px';
+
+      if (t < 1) {
+        specialSpiderRAF = requestAnimationFrame(stepUp);
+      } else {
+        specialSpiderRAF = null;
+        spider.classList.remove('visible');
+        thread.classList.remove('visible');
+        if (callback) callback();
+      }
+    }
+    stepUp();
+  }
+
+  // Цикл
+  function cycle() {
+    const W = getW();
+    const H = getH();
+
+    // ФАЗА 1: нижняя левая паутина (по часовой)
+    crawlOnWeb(0, H, -Math.PI / 2, Math.PI / 2, 3000, () => {
+      spider.classList.remove('visible');
+
+      specialSpiderTimeout = setTimeout(() => {
+        // ФАЗА 2: верхняя правая паутина (по часовой)
+        crawlOnWeb(W, 0, Math.PI / 2, Math.PI * 1.5, 3000, () => {
+          spider.classList.remove('visible');
+
+          specialSpiderTimeout = setTimeout(() => {
+            // ФАЗА 3: спуск с потолка
+            crawlDownOnThread(() => {
+              specialSpiderTimeout = setTimeout(() => {
+                cycle();
+              }, 15000);
+            });
+          }, 15000);
+        });
+      }, 15000);
+    });
+  }
+
+  cycle();
+}
+
+function stopSpecialSpider() {
+  if (specialSpiderRAF) { cancelAnimationFrame(specialSpiderRAF); specialSpiderRAF = null; }
+  if (specialSpiderTimeout) { clearTimeout(specialSpiderTimeout); specialSpiderTimeout = null; }
+  const spider = document.getElementById('specialSpider');
+  const thread = document.getElementById('specialSpiderThread');
+  if (spider) spider.classList.remove('visible');
+  if (thread) thread.classList.remove('visible');
+}
 
 
 /* ============================================================
