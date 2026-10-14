@@ -1939,6 +1939,7 @@
     <div id="specialSpiderThread" class="hw-special-thread"></div>
   </div>
   <audio id="bgm" src="Фоновая_музыка_Змеи.mp3" loop preload="auto"></audio>
+  <audio id="bgmHalloween" src="halloween_music.mp3" loop preload="auto"></audio>
   <button id="pauseBtn" title="Пауза">⏸</button>
   <button id="settingsBtn" title="Настройки">⚙️</button>
   <canvas id="game"></canvas>
@@ -2289,6 +2290,7 @@ const ctx = canvas.getContext('2d');
 const gameWrap = document.getElementById('gameWrap');
 
 const bgmEl = document.getElementById('bgm');
+const bgmHalloweenEl2 = document.getElementById('bgmHalloween');
 const pauseBtn = document.getElementById('pauseBtn');
 const settingsBtn = document.getElementById('settingsBtn');
 const pauseScreen = document.getElementById('pauseScreen');
@@ -3018,8 +3020,9 @@ function applyGraphicsQuality() {
 }
 
 function applyVolume() {
-  if (!bgmEl) return;
-  bgmEl.volume = (volumeValue / 100) * 0.4;
+  const vol = (volumeValue / 100) * 0.4;
+  if (bgmEl) bgmEl.volume = vol;
+  if (bgmHalloweenEl) bgmHalloweenEl.volume = vol;
 }
 
 function updateSettingsUI() {
@@ -3497,7 +3500,7 @@ function pauseGame() {
   keysPressed = {};
   resetJoystick();
   boostBtn.classList.remove('pressed');
-  if (bgmEl) bgmEl.pause();
+  stopAllBgm();
 }
 
 function resumeGame() {
@@ -3506,7 +3509,7 @@ function resumeGame() {
   pauseScreen.classList.add('hidden');
   lastTime = performance.now();
   accumulator = 0;
-  if (bgmEl) bgmEl.play().catch(() => {});
+  startBGM();
 }
 
 function togglePause() {
@@ -4410,11 +4413,28 @@ if (playerTagName) playerTagName.textContent = playerName || 'Игрок';
 /* ============================================================
    МУЗЫКА
    ============================================================ */
+// 🎵 Выбор трека — Хэллоуин или обычный
+let bgmHalloweenEl = document.getElementById('bgmHalloween');
+
+function getActiveBgm() {
+  if (isHalloweenPeriod() && bgmHalloweenEl) return bgmHalloweenEl;
+  return bgmEl;
+}
+
+function stopAllBgm() {
+  if (bgmEl) { try { bgmEl.pause(); } catch(e){} }
+  if (bgmHalloweenEl) { try { bgmHalloweenEl.pause(); } catch(e){} }
+}
+
 function startBGM() {
   if (paused) return;
-  if (!bgmEl) return;
+  const active = getActiveBgm();
+  if (!active) return;
   applyVolume();
-  bgmEl.play().catch(() => {});
+  // Останавливаем второй трек, если играет
+  if (active === bgmEl && bgmHalloweenEl) bgmHalloweenEl.pause();
+  if (active === bgmHalloweenEl && bgmEl) bgmEl.pause();
+  active.play().catch(() => {});
 }
 
 function unlockAudioOnce() {
