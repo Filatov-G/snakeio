@@ -6388,7 +6388,9 @@ function drawBatSnake(snake) {
   }
   ctx.restore();
 
-  const cycleMs = 700;
+  // ⚡ Буст включён → машут чаще, 🐢 выключен → реже
+  const isBoosting = snake.isBoosting && snake.boost > 0;
+  const cycleMs = isBoosting ? 700 : 1000;
   const flapPhase = (now % cycleMs) / cycleMs;
 
   // Тело
