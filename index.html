@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Змейка io v2.0</title>
+<title>Змейка io v3.0</title>
 
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1117'/%3E%3Ccircle cx='42' cy='32' r='12' fill='%2300ff66'/%3E%3Ccircle cx='30' cy='32' r='10' fill='%2300dd55'/%3E%3Ccircle cx='18' cy='32' r='8' fill='%2300bb44'/%3E%3Ccircle cx='8' cy='32' r='6' fill='%23009933'/%3E%3Ccircle cx='45' cy='28' r='3' fill='%23fff'/%3E%3Ccircle cx='45' cy='36' r='3' fill='%23fff'/%3E%3Ccircle cx='46' cy='28' r='1.5' fill='%23000'/%3E%3Ccircle cx='46' cy='36' r='1.5' fill='%23000'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1117'/%3E%3Ccircle cx='42' cy='32' r='12' fill='%2300ff66'/%3E%3Ccircle cx='30' cy='32' r='10' fill='%2300dd55'/%3E%3Ccircle cx='18' cy='32' r='8' fill='%2300bb44'/%3E%3Ccircle cx='8' cy='32' r='6' fill='%23009933'/%3E%3Ccircle cx='45' cy='28' r='3' fill='%23fff'/%3E%3Ccircle cx='45' cy='36' r='3' fill='%23fff'/%3E%3Ccircle cx='46' cy='28' r='1.5' fill='%23000'/%3E%3Ccircle cx='46' cy='36' r='1.5' fill='%23000'/%3E%3C/svg%3E">
@@ -203,6 +203,20 @@
   @keyframes ghostPulse {
     0%, 100% { box-shadow: 0 0 30px rgba(180, 220, 255, 0.6); }
     50% { box-shadow: 0 0 50px rgba(200, 230, 255, 0.9); }
+  }
+
+  .stat.boost.bat {
+    opacity: 1;
+    border-color: rgba(180, 120, 255, 0.8);
+    background: linear-gradient(135deg, rgba(140, 80, 220, 0.2), rgba(80, 40, 160, 0.25));
+    box-shadow: 0 0 30px rgba(140, 80, 220, 0.6);
+    animation: batPulse 1.5s ease-in-out infinite;
+  }
+  .stat.boost.bat .label { color: #b890ff; }
+  .stat.boost.bat .value { color: #d8baff; font-size: 12px; font-weight: 900; text-shadow: 0 0 10px rgba(180, 120, 255, 0.9); }
+  @keyframes batPulse {
+    0%, 100% { box-shadow: 0 0 30px rgba(140, 80, 220, 0.6); }
+    50% { box-shadow: 0 0 50px rgba(180, 120, 255, 0.9); }
   }
 
   .overlay {
@@ -983,68 +997,52 @@
     position: relative;
     display: flex;
     align-items: center;
-    gap: 12px;
     width: 100%;
-    height: 44px;
+    height: 52px;
     padding: 0 14px;
     background: rgba(255,255,255,0.04);
     border: 2px solid rgba(255,255,255,0.1);
     border-radius: 14px;
     user-select: none;
-  }
-
-  .volume-range-track {
-    position: absolute;
-    left: 14px;
-    right: 74px;
-    top: 50%;
-    height: 6px;
-    transform: translateY(-50%);
-    background: rgba(255,255,255,0.08);
-    border-radius: 3px;
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  .volume-range-fill {
-    height: 100%;
-    width: 50%;
-    background: linear-gradient(90deg, #00ff66, #00cc55);
-    border-radius: 3px;
-    box-shadow: 0 0 10px rgba(0, 255, 100, 0.6);
-    transition: width 0.15s ease;
+    box-sizing: border-box;
   }
 
   .volume-range {
     -webkit-appearance: none;
     appearance: none;
-    flex: 1;
     width: 100%;
-    height: 30px;
-    background: transparent;
+    height: 8px;
+    background: linear-gradient(to right,
+      #00ff66 0%,
+      #00ff66 var(--vol, 50%),
+      rgba(255,255,255,0.1) var(--vol, 50%),
+      rgba(255,255,255,0.1) 100%
+    );
+    border-radius: 4px;
     outline: none;
     cursor: pointer;
-    position: relative;
-    z-index: 2;
     padding: 0;
     margin: 0;
+    margin-right: 60px;
     touch-action: manipulation;
+    transition: background 0.15s;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
   }
 
-  /* Ползунок (thumb) */
   .volume-range::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     background: radial-gradient(circle at 35% 35%, #ffffff 0%, #00ff88 45%, #00aa55 100%);
     box-shadow:
-      0 0 12px rgba(0, 255, 120, 0.9),
-      0 2px 6px rgba(0, 0, 0, 0.5);
-    border: 2px solid #0d1117;
+      0 0 14px rgba(0, 255, 120, 0.9),
+      0 2px 6px rgba(0, 0, 0, 0.6);
+    border: 3px solid #0d1117;
     cursor: grab;
     transition: transform 0.15s;
+    margin-top: -8px;
   }
   .volume-range::-webkit-slider-thumb:hover {
     transform: scale(1.15);
@@ -1054,25 +1052,24 @@
     transform: scale(1.05);
   }
 
-  /* Firefox */
   .volume-range::-moz-range-thumb {
     width: 22px;
     height: 22px;
     border-radius: 50%;
     background: radial-gradient(circle at 35% 35%, #ffffff 0%, #00ff88 45%, #00aa55 100%);
     box-shadow:
-      0 0 12px rgba(0, 255, 120, 0.9),
-      0 2px 6px rgba(0, 0, 0, 0.5);
-    border: 2px solid #0d1117;
+      0 0 14px rgba(0, 255, 120, 0.9),
+      0 2px 6px rgba(0, 0, 0, 0.6);
+    border: 3px solid #0d1117;
     cursor: grab;
   }
 
   .volume-range::-moz-range-track {
+    height: 8px;
+    border-radius: 4px;
     background: transparent;
-    height: 6px;
   }
 
-  /* Значение справа */
   .volume-range-value {
     position: absolute;
     right: 14px;
@@ -1085,7 +1082,6 @@
     min-width: 46px;
     text-align: right;
     pointer-events: none;
-    z-index: 3;
     font-family: 'Segoe UI', Arial, sans-serif;
   }
 
@@ -1779,7 +1775,43 @@
     0%, 100% { transform: rotate(-8deg); }
     50% { transform: rotate(8deg); }
   }
-  /* 🦇 Летучие мыши — летают по краям */
+
+  /* 🕷️ ОСОБЫЙ ПАУК */
+  .hw-special-spider {
+    position: absolute;
+    font-size: 40px;
+    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 1)) drop-shadow(0 0 20px rgba(180, 100, 255, 0.8));
+    pointer-events: none;
+    z-index: 25;
+    opacity: 0;
+    transition: opacity 0.3s;
+    transform-origin: center center;
+    top: 0;
+    left: 0;
+    display: none;
+  }
+  body.in-menu .hw-special-spider.visible {
+    display: block;
+    opacity: 1;
+  }
+
+  .hw-special-thread {
+    position: absolute;
+    width: 1px;
+    height: 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.7), rgba(255,255,255,0.2));
+    pointer-events: none;
+    z-index: 24;
+    opacity: 0;
+    transition: opacity 0.3s;
+    display: none;
+  }
+  body.in-menu .hw-special-thread.visible {
+    display: block;
+    opacity: 1;
+  }
+
+  /* 🦇 ЛЕТУЧИЕ МЫШИ */
   .hw-bat {
     position: absolute;
     font-size: 30px;
@@ -1813,44 +1845,8 @@
     75%  { transform: scaleX(-1) translate(10px, -10px) rotate(8deg); }
     100% { transform: scaleX(-1) translate(0, 0) rotate(-6deg); }
   }
- 
-  /* 🕷️ ОСОБЫЙ ПАУК — ползёт по паутине (только в меню) */
-  .hw-special-spider {
-    position: absolute;
-    font-size: 40px;
-    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 1)) drop-shadow(0 0 20px rgba(180, 100, 255, 0.8));
-    pointer-events: none;
-    z-index: 25;
-    opacity: 0;
-    transition: opacity 0.3s;
-    transform-origin: center center;
-    top: 0;
-    left: 0;
-    display: none;
-  }
-  body.in-menu .hw-special-spider.visible {
-    display: block;
-    opacity: 1;
-  }
 
-  /* Нитка, на которой спускается паук (только в меню) */
-  .hw-special-thread {
-    position: absolute;
-    width: 1px;
-    height: 0;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.7), rgba(255,255,255,0.2));
-    pointer-events: none;
-    z-index: 24;
-    opacity: 0;
-    transition: opacity 0.3s;
-    display: none;
-  }
-  body.in-menu .hw-special-thread.visible {
-    display: block;
-    opacity: 1;
-  }
-
-  .hw-web, .hw-pumpkin {
+  .hw-web, .hw-pumpkin, .hw-bat {
     opacity: 0;
     transition: opacity 0.3s;
   }
@@ -1891,7 +1887,6 @@
     0%, 100% { transform: translateY(0) rotate(-3deg); }
     50% { transform: translateY(-6px) rotate(3deg); }
   }
-  /* Для центральной тыквы сохраняем смещение по X */
   .hw-pumpkin-b3 {
     animation-name: hwPumpkinFloatCenter;
   }
@@ -1917,27 +1912,29 @@
 </div>
 
 <div id="gameWrap">
-  <!-- 🎃 HALLOWEEN DECOR -->
   <div id="halloweenDecor" class="hidden">
     <div class="hw-web hw-web-tl"></div>
     <div class="hw-web hw-web-tr"></div>
     <div class="hw-web hw-web-bl"></div>
     <div class="hw-web hw-web-br"></div>
+
     <div class="hw-pumpkin hw-pumpkin-b1">🎃</div>
     <div class="hw-pumpkin hw-pumpkin-b2">🎃</div>
     <div class="hw-pumpkin hw-pumpkin-b3">🎃</div>
     <div class="hw-pumpkin hw-pumpkin-b4">🎃</div>
     <div class="hw-pumpkin hw-pumpkin-b5">🎃</div>
+
     <div class="hw-bat hw-bat-l1">🦇</div>
     <div class="hw-bat hw-bat-l2">🦇</div>
     <div class="hw-bat hw-bat-l3">🦇</div>
     <div class="hw-bat hw-bat-r1">🦇</div>
     <div class="hw-bat hw-bat-r2">🦇</div>
     <div class="hw-bat hw-bat-r3">🦇</div>
+
     <div class="hw-spider hw-spider-1">🕷️</div>
     <div class="hw-spider hw-spider-2">🕷️</div>
     <div class="hw-spider hw-spider-3">🕷️</div>
-    <!-- 🕷️ ОСОБЫЙ ПАУК — ползёт по паутине -->
+
     <div id="specialSpider" class="hw-special-spider">🕷️</div>
     <div id="specialSpiderThread" class="hw-special-thread"></div>
   </div>
@@ -2045,7 +2042,7 @@
       <button id="editNameBtn" title="Сменить имя">✏️</button>
     </div>
     <div class="logo">🐍 ЗМЕЙКА.io</div>
-    <div class="sub-version">Змейка.io v2.0 — "Halloween Update"</div>
+    <div class="sub-version">Змейка.io v3.0 — "Halloween Update"</div>
     <div class="tagline">Собирай · Расти · Выживай</div>
 
     <div class="menu-wallet">
@@ -2184,6 +2181,15 @@
         <button id="buyGhostBtn" class="shop-buy-btn halloween-buy">50 🍬</button>
       </div>
 
+      <div class="shop-item halloween-item" id="batShopItem" style="display:none;">
+        <div class="shop-item-icon">🦇</div>
+        <div class="shop-item-info">
+          <div class="shop-item-name">Летучая мышь-змея</div>
+          <div class="shop-item-desc">Тёмно-коричневая змейка с машущими крыльями, жёлтыми глазами и фиолетовым свечением. Только на Хэллоуин!</div>
+        </div>
+        <button id="buyBatBtn" class="shop-buy-btn halloween-buy">50 🍬</button>
+      </div>
+
       <div class="section-title" style="margin-top:20px;">Наборы</div>
       <div class="shop-item" id="elementalPackItem">
         <div class="shop-item-icon">🔥💧☁️🍃</div>
@@ -2237,9 +2243,6 @@
       <div class="settings-section">
         <div class="settings-label">🔊 Громкость</div>
         <div class="volume-range-wrap">
-          <div class="volume-range-track">
-            <div class="volume-range-fill" id="volumeFill"></div>
-          </div>
           <input
             type="range"
             id="volumeRange"
@@ -2366,6 +2369,9 @@ const halloweenShopTitle = document.getElementById('halloweenShopTitle');
 const buyGhostBtn = document.getElementById('buyGhostBtn');
 const ghostShopItem = document.getElementById('ghostShopItem');
 
+const buyBatBtn = document.getElementById('buyBatBtn');
+const batShopItem = document.getElementById('batShopItem');
+
 const ROBOT_HEX = '#8892a8';
 const ROBOT_LIGHT = '#e8ecf5';
 const ROBOT_DARK = '#3a4152';
@@ -2380,6 +2386,7 @@ const WATER_HEX = '#0066ff';
 const AIR_HEX = '#cfe8ff';
 const PUMPKIN_HEX = '#ff7700';
 const GHOST_HEX = '#e0f0ff';
+const BAT_HEX = '#5a3f28';
 
 const popupsEl = document.getElementById('popups');
 const paletteEl = document.getElementById('palette');
@@ -2434,14 +2441,12 @@ function applyHalloweenMode() {
     document.body.classList.add('halloween-mode');
     updateHalloweenMenuState();
     if (menuCandiesWrap) menuCandiesWrap.classList.remove('hidden');
-    // 🕷️ Запускаем особого паука
     setTimeout(startSpecialSpider, 500);
   } else {
     decor.classList.add('hidden');
     document.body.classList.remove('halloween-mode');
     document.body.classList.remove('in-menu');
     if (menuCandiesWrap) menuCandiesWrap.classList.add('hidden');
-    // 🕷️ Останавливаем паука
     stopSpecialSpider();
   }
 }
@@ -2492,7 +2497,6 @@ function startSpecialSpider() {
   const getW = () => window.innerWidth;
   const getH = () => window.innerHeight;
 
-  // Ползёт по кольцу паутины
   function crawlOnWeb(cx, cy, startAngle, endAngle, duration, callback) {
     spider.classList.add('visible');
     thread.classList.remove('visible');
@@ -2521,7 +2525,6 @@ function startSpecialSpider() {
     step();
   }
 
-  // Спускается с потолка на нитке
   function crawlDownOnThread(callback) {
     spider.classList.add('visible');
     thread.classList.add('visible');
@@ -2557,7 +2560,6 @@ function startSpecialSpider() {
     stepDown();
   }
 
-  // Уползает вверх по нитке
   function crawlUpOnThread(callback) {
     const startX = getW() / 2;
     const startY = getH() * 0.5;
@@ -2586,22 +2588,18 @@ function startSpecialSpider() {
     stepUp();
   }
 
-  // Цикл
   function cycle() {
     const W = getW();
     const H = getH();
 
-    // ФАЗА 1: нижняя левая паутина (по часовой)
     crawlOnWeb(0, H, -Math.PI / 2, Math.PI / 2, 3000, () => {
       spider.classList.remove('visible');
 
       specialSpiderTimeout = setTimeout(() => {
-        // ФАЗА 2: верхняя правая паутина (по часовой)
         crawlOnWeb(W, 0, Math.PI / 2, Math.PI * 1.5, 3000, () => {
           spider.classList.remove('visible');
 
           specialSpiderTimeout = setTimeout(() => {
-            // ФАЗА 3: спуск с потолка
             crawlDownOnThread(() => {
               specialSpiderTimeout = setTimeout(() => {
                 cycle();
@@ -2839,7 +2837,9 @@ const COLOR_LIST = [
 
   { id: 'pumpkin',    hex: PUMPKIN_HEX, name: 'Тыква',     free: false, price: 50, logo: '🎃', logoColor: '#ffffff', currency: 'candies', halloween: true },
 
-  { id: 'ghost',      hex: GHOST_HEX,   name: 'Призрак',   free: false, price: 50, logo: '👻', logoColor: '#0a1428', currency: 'candies', halloween: true }
+  { id: 'ghost',      hex: GHOST_HEX,   name: 'Призрак',   free: false, price: 50, logo: '👻', logoColor: '#0a1428', currency: 'candies', halloween: true },
+
+  { id: 'bat',        hex: BAT_HEX,     name: 'Летучая мышь', free: false, price: 50, logo: '🦇', logoColor: '#ffdd44', currency: 'candies', halloween: true }
 ];
 
 const TUTORIAL_STEPS = isMobile ? [
@@ -2994,7 +2994,6 @@ if (menuCandiesEl) menuCandiesEl.textContent = candies;
    ============================================================ */
 let graphicsQuality = localStorage.getItem('snakeio_graphics') || 'high';
 
-// Громкость — 0 / 25 / 50 / 75 / 100
 let volumeValue = parseInt(localStorage.getItem('snakeio_volume') || '50', 10);
 if (isNaN(volumeValue)) volumeValue = 50;
 volumeValue = Math.round(volumeValue / 25) * 25;
@@ -3020,7 +3019,6 @@ function applyGraphicsQuality() {
 
 function applyVolume() {
   if (!bgmEl) return;
-  // Максимум 40% от системного — чтобы не глушило
   bgmEl.volume = (volumeValue / 100) * 0.4;
 }
 
@@ -3030,10 +3028,11 @@ function updateSettingsUI() {
   });
 
   const range = document.getElementById('volumeRange');
-  const fill = document.getElementById('volumeFill');
   const val = document.getElementById('volumeValue');
-  if (range) range.value = volumeValue;
-  if (fill) fill.style.width = volumeValue + '%';
+  if (range) {
+    range.value = volumeValue;
+    range.style.setProperty('--vol', volumeValue + '%');
+  }
   if (val) val.textContent = volumeValue + '%';
 }
 
@@ -3046,7 +3045,6 @@ function setGraphicsQuality(q) {
 
 function setVolumeLevel(v) {
   let val = parseInt(v, 10) || 0;
-  // 🎚️ Прилипаем к 0/25/50/75/100
   val = Math.round(val / 25) * 25;
   val = Math.max(0, Math.min(100, val));
   volumeValue = val;
@@ -3075,7 +3073,7 @@ if (settingsCloseBtn) settingsCloseBtn.addEventListener('click', closeSettings);
 document.querySelectorAll('[data-graphics]').forEach(btn => {
   btn.addEventListener('click', () => setGraphicsQuality(btn.getAttribute('data-graphics')));
 });
-// 🎚️ Ползунок громкости
+
 const volumeRangeEl = document.getElementById('volumeRange');
 if (volumeRangeEl) {
   volumeRangeEl.addEventListener('input', (e) => setVolumeLevel(e.target.value));
@@ -3703,12 +3701,17 @@ function updateBoostIndicator() {
   const isRobotSkin = sameColor(playerColor, ROBOT_HEX);
   const isPumpkinSkin = sameColor(playerColor, PUMPKIN_HEX);
   const isGhostSkin = sameColor(playerColor, GHOST_HEX);
+  const isBatSkin = sameColor(playerColor, BAT_HEX);
   const labelEl = boostStat.querySelector('.label');
   const valueEl = boostStat.querySelector('.value');
 
-  boostStat.classList.remove('fire', 'water', 'air', 'earth', 'robot', 'pumpkin', 'ghost');
+  boostStat.classList.remove('fire', 'water', 'air', 'earth', 'robot', 'pumpkin', 'ghost', 'bat');
 
-  if (isGhostSkin) {
+  if (isBatSkin) {
+    labelEl.textContent = '🦇 МЫШЬ';
+    valueEl.textContent = '∞ ХЭЛЛОУИН';
+    boostStat.classList.add('bat');
+  } else if (isGhostSkin) {
     labelEl.textContent = '👻 ПРИЗРАК';
     valueEl.textContent = '∞ ХЭЛЛОУИН';
     boostStat.classList.add('ghost');
@@ -4091,7 +4094,6 @@ function drawRobotTrail() {
 function renderPalette() {
   paletteEl.innerHTML = '';
   COLOR_LIST.forEach(colorData => {
-    // 🎃 Хэллоуинские скины в палитре показываем только если куплены и в сезон
     if (colorData.halloween && !isColorOwned(colorData.id)) return;
     if (colorData.halloween && !isHalloweenPeriod()) return;
 
@@ -4322,6 +4324,7 @@ function showShopScreen() {
   updateElementalPackButton();
   updatePumpkinShopButton();
   updateGhostShopButton();
+  updateBatShopButton();
   checkElementalSkinAchievement();
   checkPumpkinAchievement();
   checkAchievements();
@@ -4458,6 +4461,7 @@ function exchangeCoinsToCrystals() {
   updateElementalPackButton();
   updatePumpkinShopButton();
   updateGhostShopButton();
+  updateBatShopButton();
   updateBuyBlock();
   checkAchievements();
 }
@@ -4511,6 +4515,7 @@ function updatePumpkinShopButton() {
     halloweenShopTitle.style.display = 'none';
     pumpkinShopItem.style.display = 'none';
     ghostShopItem.style.display = 'none';
+    batShopItem.style.display = 'none';
     return;
   }
 
@@ -4541,6 +4546,7 @@ function updateGhostShopButton() {
 
   if (!isHalloweenPeriod()) {
     ghostShopItem.style.display = 'none';
+    batShopItem.style.display = 'none';
     return;
   }
 
@@ -4562,6 +4568,35 @@ function updateGhostShopButton() {
     buyGhostBtn.disabled = true;
     buyGhostBtn.textContent = 'Нужно ' + colorData.price + ' 🍬';
     ghostShopItem.style.opacity = '0.7';
+  }
+}
+
+function updateBatShopButton() {
+  if (!buyBatBtn || !batShopItem || !halloweenShopTitle) return;
+
+  if (!isHalloweenPeriod()) {
+    batShopItem.style.display = 'none';
+    return;
+  }
+
+  batShopItem.style.display = '';
+
+  const colorData = COLOR_LIST.find(c => c.id === 'bat');
+  if (!colorData) return;
+  const owned = isColorOwned('bat');
+
+  if (owned) {
+    buyBatBtn.disabled = true;
+    buyBatBtn.textContent = '✅ Куплено';
+    batShopItem.style.opacity = '0.6';
+  } else if (candies >= colorData.price) {
+    buyBatBtn.disabled = false;
+    buyBatBtn.textContent = colorData.price + ' 🍬';
+    batShopItem.style.opacity = '1';
+  } else {
+    buyBatBtn.disabled = true;
+    buyBatBtn.textContent = 'Нужно ' + colorData.price + ' 🍬';
+    batShopItem.style.opacity = '0.7';
   }
 }
 
@@ -4622,6 +4657,34 @@ function buyGhostSkin() {
   checkAchievements();
 }
 
+function buyBatSkin() {
+  if (!isHalloweenPeriod()) return;
+  const colorData = COLOR_LIST.find(c => c.id === 'bat');
+  if (!colorData || isColorOwned('bat')) return;
+  if (candies < colorData.price) { updateBatShopButton(); return; }
+
+  candies -= colorData.price;
+  localStorage.setItem('snakeio_candies', candies);
+  updateCandiesUI();
+
+  ownedColors.push('bat');
+  saveOwnedColors();
+
+  playerColor = colorData.hex;
+  localStorage.setItem('snakeio_color', playerColor);
+  if (player) {
+    player.speed = isPremiumSkin(playerColor)
+      ? BASE_SPEED * PREMIUM_SPEED_BONUS
+      : BASE_SPEED;
+  }
+
+  updateBoostIndicator();
+  updateBatShopButton();
+  renderPalette();
+  updateBuyBlock();
+  checkAchievements();
+}
+
 function makeShopButton(buyBtnEl, shopItemEl, id) {
   if (!buyBtnEl) return null;
   const update = () => {
@@ -4668,6 +4731,7 @@ function makeShopButton(buyBtnEl, shopItemEl, id) {
     updateElementalPackButton();
     updatePumpkinShopButton();
     updateGhostShopButton();
+    updateBatShopButton();
     checkElementalSkinAchievement();
     checkAchievements();
     if (selectedShopColor === colorData.hex) selectedShopColor = null;
@@ -4711,6 +4775,7 @@ function buyRobotSkin() {
   updateElementalPackButton();
   updatePumpkinShopButton();
   updateGhostShopButton();
+  updateBatShopButton();
   checkAchievements();
   if (selectedShopColor === colorData.hex) selectedShopColor = null;
   updateBuyBlock();
@@ -4742,6 +4807,7 @@ function buyEarthSkin() {
   updateElementalPackButton();
   updatePumpkinShopButton();
   updateGhostShopButton();
+  updateBatShopButton();
   checkElementalSkinAchievement();
   checkAchievements();
   if (selectedShopColor === colorData.hex) selectedShopColor = null;
@@ -4752,6 +4818,7 @@ if (buyRobotBtn) buyRobotBtn.addEventListener('click', buyRobotSkin);
 if (buyEarthBtn) buyEarthBtn.addEventListener('click', buyEarthSkin);
 if (buyPumpkinBtn) buyPumpkinBtn.addEventListener('click', buyPumpkinSkin);
 if (buyGhostBtn) buyGhostBtn.addEventListener('click', buyGhostSkin);
+if (buyBatBtn) buyBatBtn.addEventListener('click', buyBatSkin);
 
 function updateElementalPackButton() {
   if (!buyElementalPackBtn) return;
@@ -4808,6 +4875,7 @@ function grantElementalPack() {
   updateAirShopButton();
   updatePumpkinShopButton();
   updateGhostShopButton();
+  updateBatShopButton();
   updateBuyBlock();
   checkElementalSkinAchievement();
   checkAchievements();
@@ -4926,7 +4994,6 @@ function initWorld() {
     } while (!ok && tries < 100);
     const blackBot = makeSnake(bx, by, rand(0, Math.PI * 2), '#111111', false);
     blackBot.isBlackBot = true;
-    // +5% к скорости
     blackBot.speed = BASE_SPEED * 0.92 * 1.05;
     computeSegments(blackBot);
     bots.push(blackBot);
@@ -5222,7 +5289,8 @@ function moveSnake(snake, dt) {
     const isRobotSkin = sameColor(snake.color, ROBOT_HEX);
     const isPumpkinSkin = sameColor(snake.color, PUMPKIN_HEX);
     const isGhostSkin = sameColor(snake.color, GHOST_HEX);
-    const hasInfiniteBoost = isFireSkin || isRobotSkin || isPumpkinSkin || isGhostSkin;
+    const isBatSkin = sameColor(snake.color, BAT_HEX);
+    const hasInfiniteBoost = isFireSkin || isRobotSkin || isPumpkinSkin || isGhostSkin || isBatSkin;
 
     if (snake.isBoosting) {
       if (hasInfiniteBoost) snake.boost = BOOST_MAX;
@@ -5253,6 +5321,9 @@ function moveSnake(snake, dt) {
       } else if (isGhostSkin) {
         emitParticles(snake.x - Math.cos(snake.angle) * 18, snake.y - Math.sin(snake.angle) * 18,
           Math.random() < 0.5 ? 'rgb(220,240,255)' : 'rgb(180,210,240)', 2, 0.5);
+      } else if (isBatSkin) {
+        emitParticles(snake.x - Math.cos(snake.angle) * 18, snake.y - Math.sin(snake.angle) * 18,
+          Math.random() < 0.5 ? 'rgb(150,80,220)' : 'rgb(100,60,180)', 2, 0.6);
       } else {
         if (Math.random() < 0.5) {
           emitParticles(snake.x - Math.cos(snake.angle) * 15, snake.y - Math.sin(snake.angle) * 15,
@@ -5452,7 +5523,6 @@ function respawnBot() {
   const idx = bots.findIndex(b => !b.alive);
   const wasBlackBot = idx >= 0 && bots[idx] && bots[idx].isBlackBot;
 
-  // 🎃 Если убитый бот был чёрным — возрождаем чёрного
   let color, isBlack = false;
   if (wasBlackBot && isHalloweenPeriod()) {
     color = '#111111';
@@ -5554,7 +5624,8 @@ function physicsStep() {
     const isRobotSkin = sameColor(player.color, ROBOT_HEX);
     const isPumpkinSkin = sameColor(player.color, PUMPKIN_HEX);
     const isGhostSkin = sameColor(player.color, GHOST_HEX);
-    const hasInfiniteBoost = isFireSkin || isRobotSkin || isPumpkinSkin || isGhostSkin;
+    const isBatSkin = sameColor(player.color, BAT_HEX);
+    const hasInfiniteBoost = isFireSkin || isRobotSkin || isPumpkinSkin || isGhostSkin || isBatSkin;
     const canBoost = hasInfiniteBoost || player.boost >= BOOST_MIN_TO_START;
 
     if (keysPressed.boost && !player.isBoosting && canBoost) player.isBoosting = true;
@@ -6078,7 +6149,6 @@ function drawGhostSnake(snake) {
   const DARK_BLUE   = 'rgba(30, 60, 110, 0.35)';
   const GLOW_BLUE   = 'rgba(180, 220, 255, 0.95)';
 
-  // ── ШЛЕЙФ ──────────────────────────────────
   const tail1 = snake.segments[total - 1];
   const tail2 = snake.segments[total - 2];
   if (tail1 && tail2) {
@@ -6103,7 +6173,6 @@ function drawGhostSnake(snake) {
     ctx.restore();
   }
 
-  // ── ТЕЛО ──────────────────────────────────
   for (let i = total - 1; i >= 1; i--) {
     const p = snake.segments[i];
     if (!p) continue;
@@ -6152,7 +6221,6 @@ function drawGhostSnake(snake) {
     ctx.restore();
   }
 
-  // ── ГОЛОВА ────────────────────────────────
   const head = snake.segments[0];
   const next = snake.segments[1];
   if (!head) return;
@@ -6215,7 +6283,6 @@ function drawGhostSnake(snake) {
   );
   ctx.fill();
 
-  // Морда — тень
   ctx.save();
   ctx.globalAlpha = 0.3;
   ctx.fillStyle = DARK_BLUE;
@@ -6224,7 +6291,6 @@ function drawGhostSnake(snake) {
   ctx.fill();
   ctx.restore();
 
-  // Глаза
   const eyeX = s * 0.05;
   const eyeY = s * 0.38;
   const eyeRx = s * 0.25;
@@ -6248,7 +6314,6 @@ function drawGhostSnake(snake) {
   ctx.fill();
   ctx.restore();
 
-  // Зрачки
   ctx.shadowColor = GLOW_BLUE;
   ctx.shadowBlur = 14;
   ctx.fillStyle = '#aee0ff';
@@ -6269,13 +6334,11 @@ function drawGhostSnake(snake) {
   ctx.fill();
   ctx.shadowBlur = 0;
 
-  // Рот — «О»
   ctx.fillStyle = BLACK;
   ctx.beginPath();
   ctx.ellipse(s * 0.6, 0, s * 0.15, s * 0.19, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Вуаль
   ctx.strokeStyle = GHOST_EDGE;
   ctx.lineWidth = 1.2;
   ctx.globalAlpha = 0.55;
@@ -6284,6 +6347,297 @@ function drawGhostSnake(snake) {
   ctx.quadraticCurveTo(-s * 0.3, s * 0.9, -s * 0.1, s * 0.75);
   ctx.quadraticCurveTo(s * 0.05, s * 0.6, s * 0.2, s * 0.8);
   ctx.quadraticCurveTo(s * 0.35, s * 0.95, s * 0.5, s * 0.75);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+
+/* ============================================================
+   🦇 BAT SNAKE
+   ============================================================ */
+function drawBatSnake(snake) {
+  const total = snake.segments.length;
+  const now = performance.now();
+  const boostGlow = (snake.isPlayer && snake.isBoosting && snake.boost > 0) ? 1.5 : 1;
+
+  const BAT_XL    = '#8a6a4a';
+  const BAT_LIGHT = '#5a3f28';
+  const BAT_MID   = '#3d2a1a';
+  const BAT_DARK  = '#1f1410';
+  const BAT_EDGE  = 'rgba(15, 8, 5, 0.9)';
+  const BLACK     = '#0a0505';
+  const YELLOW    = '#ffdd44';
+  const RED       = '#ff2244';
+
+  // Фиолетовое свечение
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (let i = total - 1; i >= 0; i--) {
+    const p = snake.segments[i];
+    if (!p) continue;
+    const glowR = BODY_RADIUS * 2.2;
+    const alpha = 0.25 - (i / total) * 0.15;
+    const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowR);
+    grad.addColorStop(0, `rgba(150, 80, 220, ${alpha * boostGlow})`);
+    grad.addColorStop(1, 'rgba(80, 30, 160, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, glowR, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  const cycleMs = 700;
+  const flapPhase = (now % cycleMs) / cycleMs;
+
+  // Тело
+  for (let i = total - 1; i >= 1; i--) {
+    const p = snake.segments[i];
+    if (!p) continue;
+    const tRatio = i / Math.max(1, total - 1);
+    const radius = BODY_RADIUS * (1 - tRatio * 0.5) + Math.sin(snake.pulse + i * 0.4) * 0.6;
+
+    ctx.save();
+    ctx.shadowColor = BAT_LIGHT;
+    ctx.shadowBlur = (i < 3 ? 14 : 6) * boostGlow;
+
+    const grad = ctx.createRadialGradient(
+      p.x - radius * 0.4, p.y - radius * 0.45, radius * 0.05,
+      p.x, p.y, radius * 1.15
+    );
+    grad.addColorStop(0, BAT_XL);
+    grad.addColorStop(0.35, BAT_LIGHT);
+    grad.addColorStop(0.75, BAT_MID);
+    grad.addColorStop(1, BAT_DARK);
+
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.strokeStyle = BAT_EDGE;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  // Крылья (5 пар)
+  for (let i = 1; i <= 5; i++) {
+    const p = snake.segments[i];
+    if (!p) continue;
+    const tRatio = i / Math.max(1, total - 1);
+    const radius = BODY_RADIUS * (1 - tRatio * 0.5) + Math.sin(snake.pulse + i * 0.4) * 0.6;
+
+    const waveOffset = i * -0.1;
+    const localPhase = ((flapPhase + waveOffset) % 1 + 1) % 1;
+    const localSin = Math.sin(localPhase * Math.PI * 2);
+
+    drawBatWing(p.x, p.y, radius, -1, localSin);
+    drawBatWing(p.x, p.y, radius, +1, localSin);
+  }
+
+  // Голова
+  const head = snake.segments[0];
+  const next = snake.segments[1];
+  if (!head) return;
+  const angle = next ? Math.atan2(head.y - next.y, head.x - next.x) : snake.angle;
+  const s = HEAD_RADIUS;
+
+  ctx.save();
+  ctx.translate(head.x, head.y);
+  ctx.rotate(angle);
+
+  const haloGrad = ctx.createRadialGradient(0, 0, s * 0.5, 0, 0, s * 2.8);
+  haloGrad.addColorStop(0, `rgba(160, 100, 240, ${0.5 * boostGlow})`);
+  haloGrad.addColorStop(0.6, 'rgba(120, 60, 200, 0.15)');
+  haloGrad.addColorStop(1, 'rgba(80, 40, 160, 0)');
+  ctx.fillStyle = haloGrad;
+  ctx.beginPath();
+  ctx.arc(0, 0, s * 2.8, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Уши
+  ctx.fillStyle = BAT_MID;
+  ctx.strokeStyle = BAT_EDGE;
+  ctx.lineWidth = 1.5;
+
+  ctx.beginPath();
+  ctx.moveTo(-s * 0.3, -s * 0.5);
+  ctx.bezierCurveTo(-s * 0.8, -s * 0.9, -s * 0.9, -s * 1.2, -s * 0.4, -s * 1.1);
+  ctx.bezierCurveTo(-s * 0.2, -s * 1.05, -s * 0.1, -s * 0.9, 0, -s * 0.6);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(-s * 0.3, s * 0.5);
+  ctx.bezierCurveTo(-s * 0.8, s * 0.9, -s * 0.9, s * 1.2, -s * 0.4, s * 1.1);
+  ctx.bezierCurveTo(-s * 0.2, s * 1.05, -s * 0.1, s * 0.9, 0, s * 0.6);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = 'rgba(180, 100, 120, 0.5)';
+  ctx.beginPath();
+  ctx.moveTo(-s * 0.35, -s * 0.6);
+  ctx.bezierCurveTo(-s * 0.6, -s * 0.9, -s * 0.65, -s * 1.0, -s * 0.45, -s * 0.95);
+  ctx.bezierCurveTo(-s * 0.3, -s * 0.9, -s * 0.2, -s * 0.85, -s * 0.15, -s * 0.7);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(-s * 0.35, s * 0.6);
+  ctx.bezierCurveTo(-s * 0.6, s * 0.9, -s * 0.65, s * 1.0, -s * 0.45, s * 0.95);
+  ctx.bezierCurveTo(-s * 0.3, s * 0.9, -s * 0.2, s * 0.85, -s * 0.15, s * 0.7);
+  ctx.closePath();
+  ctx.fill();
+
+  // Тело головы
+  ctx.shadowColor = BAT_LIGHT;
+  ctx.shadowBlur = 20 * boostGlow;
+
+  const headGrad = ctx.createRadialGradient(
+    -s * 0.4, -s * 0.45, s * 0.05,
+    0, 0, s * 1.15
+  );
+  headGrad.addColorStop(0, BAT_XL);
+  headGrad.addColorStop(0.35, BAT_LIGHT);
+  headGrad.addColorStop(0.75, BAT_MID);
+  headGrad.addColorStop(1, BAT_DARK);
+
+  ctx.fillStyle = headGrad;
+  ctx.beginPath();
+  ctx.arc(0, 0, s, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  ctx.strokeStyle = BAT_EDGE;
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.arc(0, 0, s, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.fillStyle = 'rgba(220, 180, 140, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(-s * 0.4, -s * 0.5, s * 0.4, s * 0.2, -0.55, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Глаза
+  const eyeX = s * 0.25;
+  const eyeY = s * 0.38;
+
+  ctx.shadowColor = YELLOW;
+  ctx.shadowBlur = 10;
+  ctx.fillStyle = YELLOW;
+
+  ctx.beginPath();
+  ctx.ellipse(eyeX, -eyeY, s * 0.15, s * 0.18, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(eyeX, eyeY, s * 0.15, s * 0.18, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  ctx.fillStyle = RED;
+  ctx.beginPath();
+  ctx.ellipse(eyeX + 1, -eyeY, s * 0.07, s * 0.10, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(eyeX + 1, eyeY, s * 0.07, s * 0.10, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = BLACK;
+  ctx.beginPath();
+  ctx.arc(eyeX + 1.5, -eyeY, 1.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(eyeX + 1.5, eyeY, 1.3, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Нос
+  ctx.fillStyle = '#2a1a10';
+  ctx.beginPath();
+  ctx.ellipse(s * 0.7, 0, s * 0.09, s * 0.07, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Рот + клыки
+  ctx.strokeStyle = BLACK;
+  ctx.lineWidth = 1.4;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(s * 0.65, -s * 0.09);
+  ctx.lineTo(s * 0.73, 0);
+  ctx.lineTo(s * 0.65, s * 0.09);
+  ctx.stroke();
+
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.moveTo(s * 0.67, -s * 0.05);
+  ctx.lineTo(s * 0.70, 0);
+  ctx.lineTo(s * 0.73, -s * 0.04);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(s * 0.67, s * 0.05);
+  ctx.lineTo(s * 0.70, 0);
+  ctx.lineTo(s * 0.73, s * 0.04);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
+// ── КРЫЛО ЛЕТУЧЕЙ МЫШИ ──────────────────────────
+function drawBatWing(x, y, bodyR, side, flapAmount) {
+  const BAT_LIGHT = '#5a3f28';
+  const BAT_MID   = '#3d2a1a';
+  const BAT_DARK  = '#1f1410';
+  const BAT_EDGE  = 'rgba(15, 8, 5, 0.9)';
+
+  const offset = bodyR + 1;
+  const openness = (flapAmount + 1) / 2;
+  const wingW = bodyR * (1.0 + openness * 1.2);
+  const wingH = bodyR * (0.5 + openness * 1.1);
+  const lift = flapAmount * bodyR * 0.5;
+
+  ctx.save();
+  ctx.translate(x, y + side * offset + side * lift);
+  ctx.scale(1, side);
+
+  ctx.shadowColor = 'rgba(60, 30, 15, 0.7)';
+  ctx.shadowBlur = 6;
+
+  const grad = ctx.createLinearGradient(0, 0, 0, wingH);
+  grad.addColorStop(0, BAT_LIGHT);
+  grad.addColorStop(0.5, BAT_MID);
+  grad.addColorStop(1, BAT_DARK);
+
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+
+  ctx.moveTo(-wingW * 0.3, 0);
+  ctx.quadraticCurveTo(-wingW * 0.1, wingH * 0.9, wingW * 0.6, wingH * 0.85);
+  ctx.quadraticCurveTo(wingW * 1.0, wingH * 0.7, wingW * 0.9, wingH * 0.3);
+  ctx.quadraticCurveTo(wingW * 0.5, wingH * 0.35, wingW * 0.3, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = BAT_EDGE;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  ctx.strokeStyle = 'rgba(10, 5, 5, 0.6)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.quadraticCurveTo(wingW * 0.3, wingH * 0.5, wingW * 0.85, wingH * 0.45);
   ctx.stroke();
 
   ctx.restore();
@@ -6314,6 +6668,7 @@ function drawSnake(snake) {
   const isRobot = sameColor(color, ROBOT_HEX);
   const isPumpkin = sameColor(color, PUMPKIN_HEX);
   const isGhost = sameColor(color, GHOST_HEX);
+  const isBat = sameColor(color, BAT_HEX);
 
   if (isRobot) {
     drawRobotSnake(snake);
@@ -6325,6 +6680,10 @@ function drawSnake(snake) {
   }
   if (isGhost) {
     drawGhostSnake(snake);
+    return;
+  }
+  if (isBat) {
+    drawBatSnake(snake);
     return;
   }
 
@@ -6421,7 +6780,7 @@ function drawSnake(snake) {
   const eye2x = snake.x + Math.cos(dir) * forwardOffset - perpX * eyeOffset;
   const eye2y = snake.y + Math.sin(dir) * forwardOffset - perpY * eyeOffset;
 
-  // 🎃 Особые глаза для чёрного бота — красные
+  // Красные глаза для чёрного бота
   const isBlackBot = snake.isBlackBot;
 
   ctx.fillStyle = isBlackBot ? '#ff2222' : '#fff';
@@ -6430,7 +6789,6 @@ function drawSnake(snake) {
   ctx.arc(eye2x, eye2y, HEAD_RADIUS * 0.30, 0, Math.PI * 2);
   ctx.fill();
 
-  // Свечение для красных глаз
   if (isBlackBot) {
     ctx.save();
     ctx.shadowColor = '#ff2222';
@@ -6490,7 +6848,7 @@ function drawSnake(snake) {
 
 
 /* ============================================================
-   РОБОТ-ЗМЕЯ (отрисовка)
+   РОБОТ-ЗМЕЯ
    ============================================================ */
 function drawRobotSnake(snake) {
   const boostGlow = (snake.isPlayer && snake.isBoosting && snake.boost > 0) ? 1.5 : 1;
@@ -6980,6 +7338,7 @@ updateAirShopButton();
 updateElementalPackButton();
 updatePumpkinShopButton();
 updateGhostShopButton();
+updateBatShopButton();
 initWorld();
 gameLoopRunning = true;
 requestAnimationFrame(gameLoop);
